@@ -15,7 +15,10 @@
   <link rel="stylesheet" href="css/common_media.css">
   <link rel="stylesheet" href="css/main_media.css">
   <!-- 가져온 js -->
-
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+  <script src="main.js"></script>
   <!-- 내 script -->
   <script src="js/common.js" defer></script>
   <script src="js/main.js" defer></script>
@@ -24,32 +27,422 @@
 
 <body>
   <div class="wrap">
-    <button type="button" class="white_origin">button <span>&gt;</span></button>
+    <div class="ev6" id="scroll_container">
+    <!-- 고정 뷰포트 -->
+    <div class="inner" id="pinned_viewport">
 
-    <button type="button" class="trans_origin">button <span>&gt;</span></button>
-    <button type="button" class="trans_origin2">button <span>&gt;</span></button>
-    <button type="button" class="dark_origin">button <span>&gt;</span></button>
-    <button type="button" class="dark_origin2">button <span>&gt;</span></button>
-    <button type="button" class="dark_origin3">button <span>&gt;</span></button>
-    <img src="img/01main/sportage.png" alt="">
-    <!-- <img src="img/01main/car1.jpg" alt=""> -->
-    <img src="img/01main/button.png" alt="">
-    <img src="img/01main/img.png" alt="">
-    <nav>
-      <ul class="gnb glass_bg1">
-        <li><a href="#">company</a></li>
-        <li><a href="#">vehicles</a></li>
-        <li><a href="#">shopping assistant</a></li>
-        <li><a href="#">inventory</a></li>
-        <li><a href="#">center</a></li>
-        <li><a href="#">owners page</a></li>
-      </ul>
-    </nav>
-    <div class="review glass_bg2"></div>
-    <div class="review glass_bg3"></div>
+      <!-- 메인 레이어 (clip-path 오버랩 전환) -->
+      <div class="main_layer" id="layer_1">
+        <img src="img/main/ev6/img1.png" alt="" draggable="false">
+      </div>
+      <div class="main_layer" id="layer_2">
+        <img src="img/main/ev6/img2.png" alt="" draggable="false">
+      </div>
+      <div class="main_layer" id="layer_3">
+        <img src="img/main/ev6/img3.png" alt="" draggable="false">
+      </div>
+      <div class="main_layer" id="layer_4">
+        <img src="img/main/ev6/img5.png" alt="" draggable="false">
+      </div>
+      <div class="main_layer" id="layer_5">
+        <img src="img/main/ev6/img7.png" alt="" draggable="false">
+      </div>
+      <div class="main_layer" id="layer_6">
+        <img src="img/main/ev6/img9.png" alt="" draggable="false">
+      </div>
 
-    <p class="glass">spor-<br>tage</p>
+      <!-- 포토 레이어 (opacity 즉시 등장) -->
+      <div class="photo_layer" id="photo_1">
+        <img src="img/main/ev6/img4.png" alt="" draggable="false">
+      </div>
+      <div class="photo_layer" id="photo_2">
+        <img src=img/main/ev6/img6.png" alt="" draggable="false">
+      </div>
+      <div class="photo_layer" id="photo_3">
+        <img src="img/main/ev6/img8.png" alt="" draggable="false">
+      </div>
+      <div class="photo_layer" id="photo_4">
+        <img src="img/main/ev6/img10.png" alt="" draggable="false">
+      </div>
 
+      <!-- 스크롤 인디케이터 -->
+      <div id="scroll_indicator">
+        <div class="scroll_line"></div>
+        <span class="scroll_text">Scroll</span>
+      </div>
+
+    </div>
+  </div> <!-- //.ev6 -->
+  <div class="match">
+    <section class="intro">
+      <div class="inner">
+        <h2>perfect Match</h2>
+        <p>Discover vehicles perfectly tailored to your lifestyle.</p>
+      </div> <!-- //.inner -->
+    </section>
+    <section class="option01">
+      <div class="inner">
+        <div class="top">
+          <strong>Outdoor & adventure</strong>
+          <a href="#">learn more</a>
+        </div> <!-- //.top -->
+        <div class="bottom">
+          <ul class="cars">
+            <li>
+              <h2>Telluride</h2>
+              <p>X-Pro SX Prestige AWD</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>X-Pro SX Prestige AWD</strong>
+                  <h2>Telluride</h2>
+                </div>
+                <p>With the Kia SUV's flagship, high ride height and improved towing
+                  It is perfect for off-road camping with capabilities.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Self-Leveling Rear Suspension</b>
+                    <p>Automatically adjusts the interior height during tracking to help maintain balance when shifting.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Terracotta Interior Color</b>
+                    <p>The warm brown-toned Terracotta leather interior is a premium color option that complements the
+                      exterior aesthetic.</p>
+                  </li>
+                  <li>
+                    <b>‣ Side Steps (Accessory)</b>
+                    <p>An accessory that assists with entry and exit in high-mounted SUVs, enhancing ride comfort.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+            <li>
+              <h2>Sportage</h2>
+              <p>X-Pro Prestige</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>X-Pro Prestige</strong>
+                  <h2>Sportage</h2>
+                </div>
+                <p>A versatile companion for every horizon, the Sportage blends intuitive urban accessibility with a rugged soul built for the great outdoors.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Sage Green Interior</b>
+                    <p>Relation to nature. The Sage Green interior highlights the Sportage's nature-friendly design theme.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Harman Kardon® Premium Audio</b>
+                    <p>A premium sound system provides an outstanding music experience even while driving.</p>
+                  </li>
+                  <li>
+                    <b>‣ Cargo Tray / Net</b>
+                    <p>A space accessory that helps you cleverly organize camping gear or various luggage.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+            <li>
+              <h2>Sorento</h2>
+              <p>X-Pro Prestige</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>X-Pro Prestige</strong>
+                  <h2>Sorento</h2>
+                </div>
+                <p>The Sorento thoughtfully designed space seamlessly adapts to your active lifestyle, ensuring your outdoor adventures are as refined as they are boundless.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Panoramic Sunroof</b>
+                    <p>An essential aesthetic option that allows you to ride while admiring the vast American skies and forests.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Roof Rack Cross Bars</b>
+                    <p>Cross bars that must be added if you want to carry a rooftop tent or kayak.</p>
+                  </li>
+                  <li>
+                    <b>‣ All-Weather Floor Mats</b>
+                    <p> Rubber mats that are easy to clean with water, even if you ride with shoes covered in mud or snow.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+          </ul>
+        </div>
+      </div> <!-- //.inner -->
+    </section>
+    <section class="option02">
+      <div class="inner">
+        <div class="top">
+          <strong>City & Commute</strong>
+          <a href="#">learn more</a>
+        </div> <!-- //.top -->
+        <div class="bottom">
+          <ul>
+            <li>
+              <h2>Seltos</h2>
+              <p>S (FWD)</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>S (FWD)</strong>
+                  <h2>Seltos</h2>
+                </div>
+                <p>Master every tight city street with the Seltos, where its nimble footprint and elevated visibility turn complex urban navigation into a seamless, stylish journey.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Solar Control Glass</b>
+                    <p>Maintains a comfortable interior temperature even under the hot American sun in places like California or Texas, reducing air conditioning usage.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Blind-Spot Collision Warning</b>
+                    <p>Warns of dangers in the rear and side blind spots on busy urban roads with frequent lane changes.</p>
+                  </li>
+                  <li>
+                    <b>‣ Remote Start</b>
+                    <p>Very convenient, allowing you to turn on the air conditioner or heater from inside the house before leaving for work.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+            <li>
+              <h2>K<span>4</span></h2>
+              <p>EX</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>EX</strong>
+                  <h2>K4</h2>
+                </div>
+                <p>The urban option best suited for sedan-style commuting needs. Included in the full Kia America lineup.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Wireless Android Auto / Apple CarPlay</b>
+                    <p>Connect your smartphone cable-free to use TMAP, Google Maps, and music immediately.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Lane Following & Keep Assist</b>
+                    <p> Helps you stay in the center of the lane, providing stability during long-distance commutes.</p>
+                  </li>
+                  <li>
+                    <b>‣ Dual-Zone Auto Climate Control</b>
+                    <p>Allows you to adjust the temperature for the driver and passenger seats independently, reducing unnecessary arguments with your co-driver.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+            <li>
+              <h2>Niro Hybrid</h2>
+              <p>EX</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>EX</strong>
+                  <h2>Niro Hybrid</h2>
+                </div>
+                <p>The Niro Hybrid is the definitive choice for city-centric living, delivering exceptional fuel efficiency and a smooth electrified drive that excels in the demands of stop-and-go traffic.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Highway Driving Assist (HDA)</b>
+                    <p>Automatically adjusts acceleration and braking during traffic jams on highways and urban arterial roads, significantly reducing driver fatigue.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Smart Cruise Control w/ Stop & Go</b>
+                    <p> Essential for congested roads, this feature maintains distance from the vehicle ahead and comes to a complete stop before restarting.</p>
+                  </li>
+                  <li>
+                    <b>‣Rear Parking Sensors</b>
+                    <p>Ensures safety when parking in tight urban spaces.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+          </ul>
+        </div>
+      </div> <!-- //.inner -->
+    </section>
+    <section class="option03">
+      <div class="inner">
+        <div class="top">
+          <strong>Family & Roadtrips</strong>
+          <a href="#">learn more</a>
+        </div> <!-- //.top -->
+        <div class="bottom">
+          <ul>
+            <li>
+              <h2>EV<span>9</span></h2>
+              <p>Land AWD</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>Land AWD</strong>
+                  <h2>EV<span>9</span></h2>
+                </div>
+                <p>Best positioned as a 3-row, family, long-range electric SUV. Kia emphasizes long-distance driving, fast charging, and lounge seats for the EV9, making it suitable for the family travel category.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Meridian® Premium Audio</b>
+                    <p>A high-end audio system equipped with 14 speakers that transforms the quiet interior of the electric vehicle into a concert hall.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Highway Driving Assist 2 (HDA 2)</b>
+                    <p>The latest driving assistance system featuring lane change assistance, which significantly reduces driver fatigue during long drives on U.S. highways.</p>
+                  </li>
+                  <li>
+                    <b>‣ Highway Driving Assist 2 (HDA 2)</b>
+                    <p>The latest driving assistance system featuring lane change assistance, which significantly reduces driver fatigue during long drives on U.S. highways.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+            <li>
+              <h2>Telluride</h2>
+              <p>EX X-Line</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>EX X-Line</strong>
+                  <h2>Telluride</h2>
+                </div>
+                <p>Designed for those who lead, the Telluride elevates the family journey with award-winning three-row luxury and the rugged confidence to command any terrain.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Heated & Ventilated 2nd Row Seats</b>
+                    <p>Heated and ventilated seats that provide a comfortable temperature not only for the driver but also for children in the rear seats.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Head-Up Display (HUD)</b>
+                    <p>Projects driving information onto the windshield to help the driver drive safely without diverting their gaze.</p>
+                  </li>
+                  <li>
+                    <b>‣ Full Display Mirror</b>
+                    <p>A digital rearview mirror that displays a clear rear view via a camera, even when the rear view is obstructed by a full load of luggage.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+            <li>
+              <h2>Carnival</h2>
+              <p>SX</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>SX</strong>
+                  <h2>Carnival</h2>
+                </div>
+                <p>Redefining the group travel experience, the Carnival MPV serves as a premium mobile sanctuary, blending sophisticated interior flexibility with first-class lounge comfort.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ Dual-Screen Rear Entertainment System</b>
+                    <p>A 10.25-inch touchscreen that displays navigation, vehicle information, and convenience features.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Bose® Premium Audio</b>
+                    <p>With 12 speakers, the whole family can enjoy high-quality surround sound while traveling.</p>
+                  </li>
+                  <li>
+                    <b>‣ Passenger View & Talk</b>
+                    <p>An interior camera system that allows the driver to check on children in the back seat via a camera and converse smoothly using a built-in microphone.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+          </ul>
+        </div>
+      </div> <!-- //.inner -->
+    </section>
+    <section class="option04">
+      <div class="inner">
+        <div class="top">
+          <strong>Electric & Eco</strong>
+          <a href="#">learn more</a>
+        </div> <!-- //.top -->
+        <div class="bottom">
+          <ul>
+            <li>
+              <h2>Niro EV</h2>
+              <p>Wind</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>Wind</strong>
+                  <h2>Niro EV</h2>
+                </div>
+                <p>For those seeking to blend ecological responsibility with functional utility, the Niro Hybrid offers a seamless integration of electrified performance and versatile space.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ 10.25-inch Touchscreen Display w/ Navigation</b>
+                    <p>A 10.25-inch touchscreen that displays navigation, vehicle information, and convenience features.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Smart Power Liftgate</b>
+                    <p>The tailgate opens automatically when you stand behind the vehicle with the smart key in your possession.</p>
+                  </li>
+                  <li>
+                    <b>‣ Preserve Package</b>
+                    <p> The Wind's Preserve Package includes a Heat Pump System and a Battery Heating System, helping to maintain range and manage battery performance in cold weather.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+            <li>
+              <h2>EV6</h2>
+              <p>Wind RWD</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>Wind RWD</strong>
+                  <h2>EV6</h2>
+                </div>
+                <p>With the Kia SUV's flagship, high ride height and improved towing It is perfect for off-road camping with capabilities.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣ 800V Ultra-Fast DC Charging</b>
+                    <p>Standard next-generation charging technology that surpasses Tesla, capable of charging the battery from 10% to 80% in just 18 minutes.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ V2L (Vehicle-to-Load)</b>
+                    <p>A feature that supplies electricity from the vehicle to external appliances, providing a futuristic power experience during camping or outdoor activities.</p>
+                  </li>
+                  <li>
+                    <b>‣Technology Package</b>
+                    <p>Includes a Surround View Monitor and Remote Smart Parking Assist, allowing you to add a futuristic, cinematic experience of locking and unlocking the car with a key from outside the vehicle at a reasonable price.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+            <li>
+              <h2>EV<span>9</span></h2>
+              <p>Land AWD</p>
+              <div class="info_con">
+                <div class="tit">
+                  <strong>Land AWD</strong>
+                  <h2>EV<span>9</span></h2>
+                </div>
+                <p>The EV9 is the definitive choice for those demand a spacious flagship SUV without compromising their environmental values. It redefines luxury by replacing traditional materials with 10 essential sustainable items.</p>
+                <ul class="info">
+                  <li>
+                    <b>‣29.6-inch Panoramic Display</b>
+                    <p> A massive screen integrating the instrument cluster, climate control, and navigation is standard, providing a high-tech cockpit experience.
+                    </p>
+                  </li>
+                  <li>
+                    <b>‣ Digital Key 2.0</b>
+                    <p>Enjoy the latest features that allow you to unlock the doors and start the engine using only your smartphone or Apple Watch.</p>
+                  </li>
+                  <li>
+                    <b>‣ 99.8 kWh Battery</b>
+                    <p>Equipped with a larger battery, this trim offers a long driving range of up to 304 miles, making it the most economical option for enjoying the practicality of a large EV.</p>
+                  </li>
+                </ul> <!-- //.info -->
+              </div> <!-- //.info_con -->
+            </li>
+          </ul>
+        </div>
+      </div> <!-- //.inner -->
+    </section>
+  </div>
   </div> <!-- //.wrap -->
 </body>
 
