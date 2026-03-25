@@ -12,10 +12,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const heroTrimPrice = document.getElementById("heroTrimPrice");
   const heroTrimLease = document.getElementById("heroTrimLease");
   const heroTrimImage = document.getElementById("heroTrimImage");
+  const heroColorStage = document.getElementById("heroColorStage");
+  const heroColorTitle = document.getElementById("heroColorTitle");
+  const heroColorTrim = document.getElementById("heroColorTrim");
+  const heroColorPrice = document.getElementById("heroColorPrice");
+  const heroColorLease = document.getElementById("heroColorLease");
+  const heroColorImage = document.getElementById("heroColorImage");
+  const heroSeatPreview = document.getElementById("heroSeatPreview");
+  const heroExteriorName = document.getElementById("heroExteriorName");
+  const heroExteriorPrice = document.getElementById("heroExteriorPrice");
+  const heroInteriorName = document.getElementById("heroInteriorName");
+  const heroExteriorSwatches = document.getElementById("heroExteriorSwatches");
+  const heroInteriorSwatches = document.getElementById("heroInteriorSwatches");
   const heroTrimCards = document.getElementById("heroTrimCards");
   const heroTopTabs = document.getElementById("heroTopTabs");
   const viewModelButton = document.getElementById("viewModelButton");
   const nextColorButton = document.getElementById("nextColorButton");
+  const viewTrimButton = document.getElementById("viewTrimButton");
+  const nextPackagesButton = document.getElementById("nextPackagesButton");
   const topTabButtons = Array.from(
     document.querySelectorAll(".hero_top_tabs button")
   );
@@ -365,6 +379,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let isAnimating = false;
   let currentStep = 0;
   let selectedTrimIndex = null;
+  let selectedExteriorIndex = 0;
+  let selectedInteriorIndex = 0;
 
   function isEv9Selected() {
     return getCurrentCar()?.title === "EV9";
@@ -402,6 +418,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getCurrentCar() {
     return currentCars[currentIndex] || null;
+  }
+
+  function getSelectedExteriorSwatch() {
+    const swatches = heroExteriorSwatches
+      ? Array.from(heroExteriorSwatches.querySelectorAll(".hero_color_swatch"))
+      : [];
+
+    return swatches[selectedExteriorIndex] || swatches[0] || null;
+  }
+
+  function getSelectedInteriorSwatch() {
+    const swatches = heroInteriorSwatches
+      ? Array.from(heroInteriorSwatches.querySelectorAll(".hero_color_swatch"))
+      : [];
+
+    return swatches[selectedInteriorIndex] || swatches[0] || null;
   }
 
   function getCurrentTrimItems(title) {
@@ -443,6 +475,65 @@ document.addEventListener("DOMContentLoaded", () => {
     heroTrimLease.textContent = selectedTrim?.lease || trimData.lease;
     heroTrimImage.src = selectedTrim?.image || "./img/sub01_build/trim_light.png";
     heroTrimImage.alt = selectedTrim?.alt || title;
+
+    if (heroColorTitle && heroColorImage) {
+      heroColorTitle.innerHTML = formatCarTitleMarkup(title);
+      heroColorTitle.className = "hero_color_title";
+
+      if (titleKey) {
+        heroColorTitle.classList.add(`hero_title_${titleKey}`);
+      }
+
+      heroColorTrim.textContent = selectedTrim?.name || trimData.grade;
+      heroColorPrice.textContent = selectedTrim?.price || trimData.price;
+      heroColorLease.textContent = selectedTrim?.lease || trimData.lease;
+      heroColorImage.src = selectedTrim?.image || "./img/sub01_build/trim_light.png";
+      heroColorImage.alt = selectedTrim?.alt || title;
+    }
+  }
+
+  function syncColorStageSelections() {
+    const exteriorSwatches = heroExteriorSwatches
+      ? Array.from(heroExteriorSwatches.querySelectorAll(".hero_color_swatch"))
+      : [];
+    const interiorSwatches = heroInteriorSwatches
+      ? Array.from(heroInteriorSwatches.querySelectorAll(".hero_color_swatch"))
+      : [];
+
+    exteriorSwatches.forEach((swatch, index) => {
+      swatch.classList.toggle("is-selected", index === selectedExteriorIndex);
+      swatch.setAttribute(
+        "aria-pressed",
+        index === selectedExteriorIndex ? "true" : "false"
+      );
+    });
+
+    interiorSwatches.forEach((swatch, index) => {
+      swatch.classList.toggle("is-selected", index === selectedInteriorIndex);
+      swatch.setAttribute(
+        "aria-pressed",
+        index === selectedInteriorIndex ? "true" : "false"
+      );
+    });
+
+    const selectedExterior = getSelectedExteriorSwatch();
+    const selectedInterior = getSelectedInteriorSwatch();
+
+    if (heroExteriorName && selectedExterior) {
+      heroExteriorName.textContent = selectedExterior.dataset.name || "";
+    }
+
+    if (heroExteriorPrice && selectedExterior) {
+      heroExteriorPrice.textContent = selectedExterior.dataset.price || "";
+    }
+
+    if (heroInteriorName && selectedInterior) {
+      heroInteriorName.textContent = selectedInterior.dataset.name || "";
+    }
+
+    if (heroSeatPreview && selectedInterior) {
+      heroSeatPreview.style.background = selectedInterior.dataset.preview || "";
+    }
   }
 
   function renderTrimCards(title) {
@@ -617,13 +708,18 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    if (heroModelStage && heroTrimStage) {
-      const isTrimStage = currentStep >= 1;
-      heroModelStage.classList.toggle("is-hidden", isTrimStage);
+    if (heroModelStage && heroTrimStage && heroColorStage) {
+      const isModelStage = currentStep === 0;
+      const isTrimStage = currentStep === 1;
+      const isColorStage = currentStep >= 2;
+
+      heroModelStage.classList.toggle("is-hidden", !isModelStage);
       heroTrimStage.classList.toggle("is-visible", isTrimStage);
       heroTrimStage.setAttribute("aria-hidden", isTrimStage ? "false" : "true");
-      startStepButton?.classList.toggle("is-hidden", isTrimStage);
-      heroTopTabs?.classList.toggle("is-hidden", isTrimStage);
+      heroColorStage.classList.toggle("is-visible", isColorStage);
+      heroColorStage.setAttribute("aria-hidden", isColorStage ? "false" : "true");
+      startStepButton?.classList.toggle("is-hidden", !isModelStage);
+      heroTopTabs?.classList.toggle("is-hidden", !isModelStage);
     }
 
     if (startStepButton) {
@@ -643,6 +739,8 @@ document.addEventListener("DOMContentLoaded", () => {
     currentCars = nextCars;
     currentIndex = 0;
     selectedTrimIndex = null;
+    selectedExteriorIndex = 0;
+    selectedInteriorIndex = 0;
 
     topTabButtons.forEach((button) => {
       const isActive = button.dataset.category === currentCategory;
@@ -653,6 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCar(currentIndex);
     syncArrowState();
     syncEv9OnlyState();
+    syncColorStageSelections();
   }
 
   function getAdjacentCategory(direction) {
@@ -714,6 +813,8 @@ document.addEventListener("DOMContentLoaded", () => {
             currentCars = catalog[currentCategory] || [];
             currentIndex = 0;
             selectedTrimIndex = null;
+            selectedExteriorIndex = 0;
+            selectedInteriorIndex = 0;
 
             topTabButtons.forEach((button) => {
               const isActive = button.dataset.category === currentCategory;
@@ -723,11 +824,15 @@ document.addEventListener("DOMContentLoaded", () => {
           } else {
             currentIndex = 0;
             selectedTrimIndex = null;
+            selectedExteriorIndex = 0;
+            selectedInteriorIndex = 0;
           }
         }
       } else if (currentIndex > 0) {
         currentIndex -= 1;
         selectedTrimIndex = null;
+        selectedExteriorIndex = 0;
+        selectedInteriorIndex = 0;
       } else {
         const previousCategoryKey = getAdjacentCategory("prev");
 
@@ -736,6 +841,8 @@ document.addEventListener("DOMContentLoaded", () => {
           currentCars = catalog[currentCategory] || [];
           currentIndex = Math.max(currentCars.length - 1, 0);
           selectedTrimIndex = null;
+          selectedExteriorIndex = 0;
+          selectedInteriorIndex = 0;
 
           topTabButtons.forEach((button) => {
             const isActive = button.dataset.category === currentCategory;
@@ -745,12 +852,15 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           currentIndex = Math.max(currentCars.length - 1, 0);
           selectedTrimIndex = null;
+          selectedExteriorIndex = 0;
+          selectedInteriorIndex = 0;
         }
       }
 
       renderCar(currentIndex);
       syncArrowState();
       syncEv9OnlyState();
+      syncColorStageSelections();
 
       heroCarImage.classList.remove(exitClass);
       heroCarImage.classList.add(enterClass);
@@ -802,6 +912,14 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSteps(Math.min(2, stepButtons.length - 1));
   });
 
+  viewTrimButton?.addEventListener("click", () => {
+    updateSteps(1);
+  });
+
+  nextPackagesButton?.addEventListener("click", () => {
+    updateSteps(Math.min(3, stepButtons.length - 1));
+  });
+
   heroTrimCards?.addEventListener("click", (event) => {
     const selectTrigger = event.target.closest(".hero_trim_select_btn");
     const moreTrigger = event.target.closest(".hero_trim_more_btn");
@@ -828,12 +946,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  heroExteriorSwatches?.addEventListener("click", (event) => {
+    const swatch = event.target.closest(".hero_color_swatch");
+
+    if (!swatch) {
+      return;
+    }
+
+    const exteriorSwatches = Array.from(
+      heroExteriorSwatches.querySelectorAll(".hero_color_swatch")
+    );
+    selectedExteriorIndex = exteriorSwatches.indexOf(swatch);
+    syncColorStageSelections();
+  });
+
+  heroInteriorSwatches?.addEventListener("click", (event) => {
+    const swatch = event.target.closest(".hero_color_swatch");
+
+    if (!swatch) {
+      return;
+    }
+
+    const interiorSwatches = Array.from(
+      heroInteriorSwatches.querySelectorAll(".hero_color_swatch")
+    );
+    selectedInteriorIndex = interiorSwatches.indexOf(swatch);
+    syncColorStageSelections();
+  });
+
   window.addEventListener("resize", () => {
     syncProgressPosition();
   });
 
   hydrateEv9TrimDataFromHtml();
   setCategory(currentCategory);
+  syncColorStageSelections();
   syncEv9OnlyState();
   updateSteps(currentStep);
 });
