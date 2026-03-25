@@ -15,27 +15,76 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
+
   background-color: #0a0e17;
+}
+
+/* ===== 상단 타이틀 영역 ===== */
+.tit {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding-top: 80px;
+  padding-bottom: 128px;
+  color: #fff;
+  text-align: center;
+}
+
+.tit h2 {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.tit p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* ===== 메인 레이어 ===== */
 .main_layer {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   will-change: clip-path;
 }
 
-#layer_1 { z-index: 1; }
-#layer_2 { z-index: 2; clip-path: inset(0% 100% 0% 0%); }
-#layer_3 { z-index: 3; clip-path: inset(0% 100% 0% 0%); }
-#layer_4 { z-index: 4; clip-path: inset(0% 100% 0% 0%); }
-#layer_5 { z-index: 5; clip-path: inset(0% 100% 0% 0%); }
-#layer_6 { z-index: 6; clip-path: inset(0% 100% 0% 0%); }
+#layer_1 {
+  z-index: 1;
+}
+
+#layer_2 {
+  z-index: 2;
+  clip-path: inset(0% 100% 0% 0%);
+}
+
+#layer_3 {
+  z-index: 3;
+  clip-path: inset(0% 100% 0% 0%);
+}
+
+#layer_4 {
+  z-index: 4;
+  clip-path: inset(0% 100% 0% 0%);
+}
+
+#layer_5 {
+  z-index: 5;
+  clip-path: inset(0% 100% 0% 0%);
+}
+
+#layer_6 {
+  z-index: 6;
+  clip-path: inset(0% 100% 0% 0%);
+}
 
 .main_layer img {
   width: 100%;
@@ -48,7 +97,10 @@
 /* ===== 포토 레이어 ===== */
 .photo_layer {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
   display: flex;
@@ -59,10 +111,21 @@
   will-change: opacity;
 }
 
-#photo_1 { z-index: 20; }
-#photo_2 { z-index: 21; }
-#photo_3 { z-index: 22; }
-#photo_4 { z-index: 23; }
+#photo_1 {
+  z-index: 20;
+}
+
+#photo_2 {
+  z-index: 21;
+}
+
+#photo_3 {
+  z-index: 22;
+}
+
+#photo_4 {
+  z-index: 23;
+}
 
 .photo_layer img {
   width: 100%;
@@ -73,7 +136,7 @@
 }
 
 /* ===== 스크롤 인디케이터 ===== */
-.indicator {
+#scroll_indicator {
   position: absolute;
   bottom: 2rem;
   left: 50%;
@@ -101,9 +164,12 @@
 }
 
 @keyframes pulse_anim {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.3;
   }

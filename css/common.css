@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
+  font-size: 20px;
   --kia-white1: #FBF6EF;
   --kia-white2: #DDD8D1;
   --kia-black: #121212;
@@ -10,7 +11,7 @@
 }
 
 body {
-  font-size: 20px;
+  
   line-height: 1;
   background-color: #0C1115;
   font-family: "Inter", sans-serif;
@@ -222,10 +223,6 @@ button {
     1px 2px 4px rgba(0, 0, 0, 0.3);
 
   border: 1px solid rgba(251, 246, 239, 0.2);
-
-  position: absolute;
-  bottom: 60px;
-  left: 0;
 }
 
 .glass {

@@ -77,6 +77,50 @@ function getMainLayerClip(overlapIdx) {
   return `inset(0% ${$rightInset}% 0% 0%)`;
 }
 
+// ===== 메인 레이어 opacity 계산 (이전 요소 페이드아웃) =====
+function getMainLayerOpacity(layerIndex) {
+  // layer_1(0), layer_2(1)는 배경이므로 1 유지
+  if (layerIndex < 2) return 1;
+
+  const currentOverlapIdx = $layerOverlapMap[layerIndex];
+  const nextOverlapIdx = currentOverlapIdx + 1;
+  const nextSegIdx = $overlapIndices[nextOverlapIdx];
+
+  // 다음 등장 레이어가 존재한다면
+  if (nextSegIdx !== undefined) {
+    const nextStart = $segmentStarts[nextSegIdx];
+    // 다음 요소가 시작되는 지점부터 0.4 progress 구간 동안 서서히 사라짐
+    if ($progress >= nextStart) {
+      const fadeDur = 0.4;
+      if ($progress < nextStart + fadeDur) {
+        return 1 - (($progress - nextStart) / fadeDur);
+      }
+      return 0; // 페이드 아웃 완료
+    }
+  } else if (layerIndex === 5) {
+    // [NEW] 마지막 layer_6의 경우: 마지막 photo_4(인덱스 3)와 동기화하여 동반 페이드아웃
+    const lastPhotoIdx = 3;
+    const pSeg = $segments.find((s) => s.type === "photo" && s.photo === lastPhotoIdx);
+    
+    if (pSeg) {
+      const pSegIdx = $segments.indexOf(pSeg);
+      const pStart = $segmentStarts[pSegIdx];
+      const pEnd = pStart + pSeg.duration;
+      
+      const holdMargin = 0.2; 
+      const fadeOutDur = 0.3; 
+      
+      if ($progress > pEnd + holdMargin) {
+        if ($progress < pEnd + holdMargin + fadeOutDur) {
+          return 1 - (($progress - (pEnd + holdMargin)) / fadeOutDur);
+        }
+        return 0;
+      }
+    }
+  }
+  return 1;
+}
+
 // ===== 포토 레이어 opacity 계산 =====
 function getPhotoOpacity(photoIdx) {
   const $seg = $segments.find((s) => s.type === "photo" && s.photo === photoIdx);
@@ -86,19 +130,33 @@ function getPhotoOpacity(photoIdx) {
   const $start = $segmentStarts[$segIdx];
   const $end = $start + $seg.duration;
 
-  if ($progress >= $start + 0.01 && $progress <= $end) return 1;
+  const holdMargin = 0.2; // 멈춤 시점(스냅) 화면 유지 마진
+  const fadeOutDur = 0.3; // 다시 스크롤 이동 시 페이드아웃 속도
+
+  // 1) 등장 및 유지 (스냅 위치를 초과해도 버팀)
+  if ($progress >= $start + 0.01 && $progress <= $end + holdMargin) return 1;
   if ($progress >= $start && $progress < $start + 0.01) {
     return ($progress - $start) / 0.01;
   }
+
+  // 2) 유저가 다음 구간으로 넘어갔을 때 서서히 지워짐 (Fade-out)
+  if ($progress > $end + holdMargin && $progress < $end + holdMargin + fadeOutDur) {
+    return 1 - (($progress - ($end + holdMargin)) / fadeOutDur);
+  }
+
   return 0;
 }
 
 // ===== 레이어 업데이트 =====
 function updateLayers() {
-  // 메인 레이어 clip-path 업데이트
+  // 메인 레이어 clip-path & opacity 업데이트
   for (let $i = 0; $i < $mainLayers.length; $i++) {
     const $clip = getMainLayerClip($layerOverlapMap[$i]);
     $mainLayers[$i].style.clipPath = $clip;
+    
+    // 이전 레이어 숨기기 (opacity 제어)
+    const $opacity = getMainLayerOpacity($i);
+    $mainLayers[$i].style.opacity = $opacity;
   }
 
   // 포토 레이어 opacity 업데이트
@@ -112,38 +170,8 @@ function updateLayers() {
   $scrollIndicator.style.opacity = $progress < 0.3 ? 1 : 0;
 }
 
-// ===== 스냅 로직 =====
-function applyScrollSnap() {
-  const stablePoints = [];
-  let cum = 0;
-  stablePoints.push(cum);
-  for (const seg of $segments) {
-    cum += seg.duration;
-    stablePoints.push(cum);
-  }
-
-  let closestP = stablePoints[0];
-  let minDiff = Infinity;
-  for (const p of stablePoints) {
-    const diff = Math.abs($progress - p);
-    if (diff < minDiff) {
-      minDiff = diff;
-      closestP = p;
-    }
-  }
-
-  const $containerTop = $container.offsetTop;
-  const $containerHeight = $container.offsetHeight;
-  const $scrollable = $containerHeight - window.innerHeight;
-  const targetScrollY = $containerTop + (closestP / $totalDuration) * $scrollable;
-
-  if (Math.abs(window.scrollY - targetScrollY) < 5) return;
-
-  window.scrollTo({
-    top: targetScrollY,
-    behavior: 'smooth'
-  });
-}
+// ===== 스냅 로직 (사용자 경험 개선을 위해 삭제됨) =====
+// (중간 멈춤 유지 기능 지원을 위해 강제 snap 해제)
 
 // ===== 스크롤 이벤트 핸들러 =====
 function handleScroll() {
@@ -160,17 +188,15 @@ function handleScroll() {
     updateLayers();
     $rafId = null;
   });
-
-  if ($scrollTimeout) clearTimeout($scrollTimeout);
-  $scrollTimeout = setTimeout(() => {
-    applyScrollSnap();
-  }, 150);
+  
+  // 강제 스크롤 스냅 기능 비활성화로 setTimeout 제거
 }
 
 // ===== 초기화 =====
 window.addEventListener("scroll", handleScroll, { passive: true });
 window.addEventListener("resize", handleScroll, { passive: true });
 handleScroll();
+
 
 /* section.match */
 // ===== 스크롤 이벤트 핸들러 =====
