@@ -23,8 +23,140 @@
 
 <body>
     <div class="wrap">
+        <section class="hero" id="heroSection">
+            <div class="hero_overlay"></div>
+            <div class="hero_header_space"></div>
 
+            <div class="hero_visual" id="heroVisual">
+                <div class="hero_trim_header" id="heroTrimHeader" aria-hidden="true">
+                    <div class="hero_trim_header_logo">KIA</div>
+                    <div class="hero_trim_header_nav">
+                        <span>company</span>
+                        <span>vehicles</span>
+                        <span>shopping assistant</span>
+                        <span>inventory</span>
+                        <span>center</span>
+                        <span>owners page</span>
+                        <span>search</span>
+                        <span>global</span>
+                    </div>
+                </div>
+
+                <div class="hero_top_tabs" id="heroTopTabs" role="tablist" aria-label="Vehicle categories">
+                    <button type="button" class="active" data-category="suv" role="tab" aria-selected="true">SUV / CUV /
+                        MPV</button>
+                    <button type="button" data-category="hybrids" role="tab" aria-selected="false">Hybrids</button>
+                    <button type="button" data-category="ev" role="tab" aria-selected="false">EV</button>
+                    <button type="button" data-category="sedans" role="tab" aria-selected="false">Sedans</button>
+                </div>
+
+                <div class="hero_catalog" id="heroCatalog" aria-hidden="true">
+                    <section class="hero_category_panel" data-category="suv">
+                        <ul class="hero_car_list">
+                            <li>
+                                <h2>Sportage</h2>
+                                <img src="../kia/img/sub01_build/list_sportage.png" alt="Sportage" />
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="hero_category_panel" data-category="hybrids">
+                        <ul class="hero_car_list">
+                            <li>
+                                <h2 class="hero_car_name hero_car_name_sorento_hybrid">Sorento Hybrid</h2>
+                                <img src="../kia/img/sub01_build/list_sorentoHb.png" alt="Sorento Hybrid" />
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="hero_category_panel" data-category="ev">
+                        <ul class="hero_car_list">
+                            <li>
+                                <h2 class="hero_car_name">EV<span
+                                        class="hero_title_suffix hero_title_suffix_ev_6">6</span></h2>
+                                <img src="../kia/img/sub01_build/list_ev6.png" alt="EV6" />
+                            </li>
+                            <li>
+                                <h2 class="hero_car_name">EV<span
+                                        class="hero_title_suffix hero_title_suffix_ev_9">9</span></h2>
+                                <img src="../kia/img/sub01_build/trim_light.png" alt="EV9" />
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="hero_category_panel" data-category="sedans">
+                        <ul class="hero_car_list">
+                            <li>
+                                <h2 class="hero_car_name">K<span class="hero_title_suffix hero_title_suffix_k4">4</span>
+                                </h2>
+                                <img src="../kia/img/sub01_build/list_k4.png" alt="K4" />
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+
+                <div class="hero_model_stage" id="heroModelStage">
+                    <div class="hero_center">
+                        <h2 class="hero_title" id="heroTitle">Sportage</h2>
+
+                        <button class="hero_arrow hero_arrow_left" id="prevCar" type="button" aria-label="이전">
+                            &#10094;
+                        </button>
+                        <button class="hero_arrow hero_arrow_right" id="nextCar" type="button" aria-label="다음">
+                            &#10095;
+                        </button>
+
+                        <div class="hero_car">
+                            <img id="heroCarImage" src="../kia/img/sub01_build/trim_light.png" alt="SUV sample image" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero_trim_stage" id="heroTrimStage" aria-hidden="true">
+                    <div class="hero_trim_intro">
+                        <h2 class="hero_trim_title" id="heroTrimTitle">EV9</h2>
+                        <p class="hero_trim_grade" id="heroTrimGrade">Land AWD</p>
+                        <p class="hero_trim_price" id="heroTrimPrice">$68,900 Starting MSRP*</p>
+                        <p class="hero_trim_lease" id="heroTrimLease">$648 / 36 mo est. lease payments*</p>
+                    </div>
+
+                    <div class="hero_trim_vehicle">
+                        <img id="heroTrimImage" src="../kia/img/sub01_build/trim_light.png" alt="Trim vehicle image" />
+                    </div>
+
+                    <section class="hero_trim_panel" aria-label="Trim options">
+                        <h3 class="hero_trim_panel_title">Trim</h3>
+                        <div class="hero_trim_cards" id="heroTrimCards"></div>
+                    </section>
+
+                    <div class="hero_trim_actions">
+                        <button type="button" class="hero_trim_action_btn hero_trim_action_btn_secondary"
+                            id="viewModelButton">View Model</button>
+                        <button type="button" class="hero_trim_action_btn hero_trim_action_btn_primary"
+                            id="nextColorButton">Next Color</button>
+                    </div>
+                </div>
+
+                <button type="button" class="hero_start_btn dark_origin" id="startStepButton">Start</button>
+
+                <div class="hero_bottom_steps" id="heroBottomSteps">
+                    <div class="hero_progress" aria-hidden="true">
+                        <div class="hero_progress_track"></div>
+                        <div class="hero_progress_fill" id="heroProgressFill"></div>
+                    </div>
+
+                    <div class="hero_bottom_tabs" role="tablist" aria-label="Build steps">
+                        <button type="button" class="active" data-step="0" role="tab"
+                            aria-selected="true">Model</button>
+                        <button type="button" data-step="1" role="tab" aria-selected="false">Trim</button>
+                        <button type="button" data-step="2" role="tab" aria-selected="false">Color</button>
+                        <button type="button" data-step="3" role="tab" aria-selected="false">Packages</button>
+                        <button type="button" data-step="4" role="tab" aria-selected="false">Accessories</button>
+                        <button type="button" data-step="5" role="tab" aria-selected="false">Maintenance Plan</button>
+                        <button type="button" data-step="6" role="tab" aria-selected="false">Summary</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div> <!-- //.wrap -->
 </body>
-
-</html>
