@@ -124,21 +124,64 @@ button {
   outline: 0.5px solid rgba(255, 255, 255, 0.2);
   outline-offset: -0.5px;
   overflow: hidden;
-
-
 }
 
 .trans_origin2 {
-  background: rgba(12, 17, 21, 0.05);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  background: rgba(255, 255, 255, 0.04);
+
+  position: relative;
+  overflow: hidden;
+
+  border-radius: 555px;
+  border: 1px solid rgba(255,255,255,0.05);
+
   box-shadow:
-    inset 0px 1px 0.5px rgba(255, 255, 255, 0.4),
-    inset -1px -1.5px 2px rgba(0, 0, 0, 0.2),
-    1px 2px 4px rgba(0, 0, 0, 0.5);
-  border: 0.5px solid rgba(255, 255, 255, 0.15);
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -2px 6px rgba(0,0,0,0.4),
+    0 8px 24px rgba(0,0,0,0.5);
+}
 
+.trans_origin2 > * {
+  position: relative;
+  z-index: 2;
+}
 
+.trans_origin2::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.01), transparent 40%),
+    radial-gradient(circle at 70% 70%, rgba(255,255,255,0.1), transparent 50%),
+    linear-gradient(135deg, #1a2228, #0C1115);
+
+  filter: blur(15px);
+  pointer-events: none;
+}
+
+.trans_origin2::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.02) 0%,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.03) 45%,
+    transparent 65%
+  );
+
+  pointer-events: none;
+}
+
+.trans_origin2::before {
+  z-index: 0;
+}
+
+.trans_origin2::after {
+  z-index: 1;
 }
 
 .dark_origin {
@@ -250,16 +293,6 @@ button {
   z-index: -1;
 }
 
-p.glass {
-  text-transform: uppercase;
-  text-align: center;
-  font-style: italic;
-  font-size: 360px;
-  font-weight: 900;
-  line-height: .75;
-  letter-spacing: -30px;
-}
-
 /* header */
 header {
   width: 100%;
@@ -321,10 +354,15 @@ header nav ul.gnb>li::after {
 header nav ul.gnb>li>a {
   font-size: 24px;
   text-transform: capitalize;
-  font-weight: 400;
+  font-weight: 300;
   color: var(--kia-white2);
   padding: 16px;
   display: block;
+}
+
+header nav ul.gnb>li:hover>a{
+  font-weight: 400;
+  color: var(--kia-white1);
 }
 
 header nav ul.gnb>li.on>a {
@@ -339,7 +377,6 @@ header nav ul.gnb>li>ul.sub {
   transform: translateX(-50%);
   padding: 8px 16px;
   border-radius: 20px;
-  background: rgba(0, 0, 0, 0.4);
   gap: 5px;
   display: none;
   border-radius: 555px;
