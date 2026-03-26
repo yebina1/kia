@@ -53,14 +53,21 @@ button {
   --hero-color-frame-padding-inline: 16px;
   --hero-vehicle-max-width: 1140px;
   --hero-model-vehicle-width: min(76vw, var(--hero-vehicle-max-width));
-  --hero-stage-vehicle-width: min(100%, var(--hero-vehicle-max-width));
-  --hero-title-offset-y: 80px;
-  /* 모델 페이지 모델명 위치 수정 가능 */
+  --hero-stage-vehicle-width: min(76vw, var(--hero-vehicle-max-width));
+  --hero-stage-panel-offset-x: -80px;
+  /* 오른쪽 카드 위치 조정 */
+  --hero-title-offset-y: 100px;
+  /* 모델 페이지 모델명 위치 조정 가능 */
   --hero-stage-actions-left: 40px;
-  --hero-stage-actions-right: 0;
+  --hero-stage-actions-right: auto;
   --hero-stage-actions-bottom: -96px;
   --hero-stage-actions-gap: 64px;
-  --hero-stage-steps-left: calc(64px + (971px / 2));
+  --hero-stage-actions-center-x: calc(
+    64px + var(--hero-vehicle-max-width) + 40px +
+    ((100% - 128px - var(--hero-vehicle-max-width) - 40px) / 2) +
+    var(--hero-stage-panel-offset-x)
+  );
+  --hero-stage-steps-left: calc(64px + (var(--hero-vehicle-max-width) / 2));
   --hero-stage-steps-bottom: 24px;
   --hero-stage-steps-transform: translateX(-50%);
   --hero-stage-steps-width: fit-content;
@@ -236,7 +243,7 @@ button {
   position: absolute;
   inset: 120px 64px 120px;
   display: none;
-  grid-template-columns: minmax(860px, 971px) minmax(320px, 1fr);
+  grid-template-columns: minmax(860px, var(--hero-vehicle-max-width)) minmax(320px, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "intro panel"
@@ -256,7 +263,7 @@ button {
   position: absolute;
   inset: 120px 64px 120px;
   display: none;
-  grid-template-columns: minmax(860px, 971px) minmax(360px, 1fr);
+  grid-template-columns: minmax(860px, var(--hero-vehicle-max-width)) minmax(360px, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "intro panels"
@@ -275,7 +282,7 @@ button {
   position: absolute;
   inset: 120px 64px 120px;
   display: none;
-  grid-template-columns: minmax(860px, 971px) minmax(420px, 1fr);
+  grid-template-columns: minmax(860px, var(--hero-vehicle-max-width)) minmax(420px, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "intro panel"
@@ -347,8 +354,9 @@ button {
 
 .hero_color_seat_preview {
   position: absolute;
-  right: 48px;
-  bottom: 16px;
+  right: 168px;
+  bottom: 36px;
+  /* 시트 이미지 위치 조정 */
   width: 208px;
   aspect-ratio: 1;
   border-radius: 50%;
@@ -374,6 +382,7 @@ button {
   flex-direction: column;
   gap: 24px;
   align-self: start;
+  transform: translateX(var(--hero-stage-panel-offset-x));
 }
 
 .hero_color_panel {
@@ -606,6 +615,7 @@ button {
   grid-area: panel;
   align-self: start;
   min-height: 0;
+  transform: translateX(var(--hero-stage-panel-offset-x));
   padding: 24px;
   border-radius: 32px;
   background: rgba(121, 121, 121, 0.4);
@@ -812,6 +822,7 @@ button {
   grid-area: panel;
   align-self: stretch;
   min-height: 0;
+  transform: translateX(var(--hero-stage-panel-offset-x));
   padding: 32px;
   border-radius: 32px;
   background: rgba(121, 121, 121, 0.22);
@@ -1011,13 +1022,13 @@ button {
 }
 
 .hero_trim_actions,
-.hero_color_actions,
-.hero_package_actions {
+.hero_color_actions {
   grid-area: actions;
   position: absolute;
-  left: var(--hero-stage-actions-left);
+  left: var(--hero-stage-actions-center-x);
   right: var(--hero-stage-actions-right);
   bottom: var(--hero-stage-actions-bottom);
+  width: fit-content;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1027,10 +1038,26 @@ button {
   padding-top: 0;
   border-top: 0;
   min-height: 48px;
+  transform: translateX(-50%);
 }
 
 .hero_package_actions {
-  grid-area: bottom;
+  grid-area: actions;
+  position: absolute;
+  left: var(--hero-stage-actions-center-x);
+  right: auto;
+  bottom: var(--hero-stage-actions-bottom);
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hero-stage-actions-gap);
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  border-top: 0;
+  min-height: 48px;
+  transform: translateX(-50%);
 }
 
 .hero_trim_action_btn {
@@ -1502,6 +1529,8 @@ button {
 @media (max-width: 1024px) {
   .hero {
     --hero-stage-actions-gap: 24px;
+    --hero-stage-actions-center-x: 50%;
+    --hero-package-actions-center-x: 50%;
     --hero-stage-steps-left: 32px;
     --hero-stage-steps-bottom: 28px;
     --hero-stage-steps-transform: none;
@@ -1689,6 +1718,8 @@ button {
 @media (max-width: 360px) {
   .hero {
     --hero-stage-actions-gap: 8px;
+    --hero-stage-actions-center-x: 50%;
+    --hero-package-actions-center-x: 50%;
     --hero-stage-steps-left: 12px;
     --hero-stage-steps-bottom: 32px;
     --hero-stage-steps-transform: none;
