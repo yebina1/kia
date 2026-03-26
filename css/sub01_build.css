@@ -51,6 +51,11 @@ button {
   --hero-swatch-height: 34px;
   --hero-color-frame-padding-block: 32px;
   --hero-color-frame-padding-inline: 16px;
+  --hero-vehicle-max-width: 1140px;
+  --hero-model-vehicle-width: min(76vw, var(--hero-vehicle-max-width));
+  --hero-stage-vehicle-width: min(100%, var(--hero-vehicle-max-width));
+  --hero-title-offset-y: 80px;
+  /* 모델 페이지 모델명 위치 수정 가능 */
   --hero-stage-actions-left: 40px;
   --hero-stage-actions-right: 0;
   --hero-stage-actions-bottom: -96px;
@@ -329,7 +334,7 @@ button {
   position: relative;
   align-self: end;
   justify-self: start;
-  width: min(100%, 971px);
+  width: var(--hero-stage-vehicle-width);
   margin-top: -24px;
 }
 
@@ -586,7 +591,7 @@ button {
   grid-area: vehicle;
   align-self: end;
   justify-self: start;
-  width: min(100%, 971px);
+  width: var(--hero-stage-vehicle-width);
   margin-top: -8px;
   filter: drop-shadow(0 30px 35px rgba(0, 0, 0, 0.32));
 }
@@ -792,7 +797,7 @@ button {
   grid-area: vehicle;
   align-self: end;
   justify-self: start;
-  width: min(100%, 971px);
+  width: var(--hero-stage-vehicle-width);
   margin-top: -20px;
   filter: drop-shadow(0 30px 35px rgba(0, 0, 0, 0.32));
 }
@@ -1149,13 +1154,14 @@ button {
   align-items: center;
   justify-content: flex-end;
   flex: 1;
-  gap: 16px;
+  gap: 0;
   width: min(92vw, 980px);
   padding-bottom: 180px;
 }
 
 .hero_title {
   margin: 0;
+  margin-bottom: 4px;
   padding-top: 32px;
   letter-spacing: 2px;
   text-align: center;
@@ -1163,6 +1169,7 @@ button {
   align-items: flex-start;
   justify-content: center;
   gap: 6px;
+  transform: translateY(var(--hero-title-offset-y));
 }
 
 .hero_car_name {
@@ -1212,7 +1219,7 @@ button {
 
 .hero_car {
   position: relative;
-  width: min(66vw, 980px);
+  width: var(--hero-model-vehicle-width);
   filter: drop-shadow(0 30px 35px rgba(0, 0, 0, 0.32));
 }
 
