@@ -49,12 +49,13 @@ button {
 .hero {
   --hero-swatch-width: 66px;
   --hero-swatch-height: 34px;
-  --hero-color-frame-padding-block: 32px;
+  --hero-color-frame-padding-block: 24px;
   --hero-color-frame-padding-inline: 16px;
   --hero-vehicle-max-width: 1140px;
   --hero-stage-panel-width: 765px;
   --hero-model-vehicle-width: min(76vw, var(--hero-vehicle-max-width));
   --hero-stage-vehicle-width: min(76vw, var(--hero-vehicle-max-width));
+  --hero-stage-vehicle-shift-x: -32px;
   --hero-stage-panel-offset-x: -0px;
   /* 오른쪽 카드 위치 조정 */
   --hero-title-offset-y: 100px;
@@ -362,11 +363,13 @@ button {
   align-self: end;
   justify-self: start;
   width: var(--hero-stage-vehicle-width);
+  transform: translateX(var(--hero-stage-vehicle-shift-x));
 }
 
 .hero_color_vehicle {
   position: relative;
   margin-top: -24px;
+  /* 차량 사진 위치 조정 */
 }
 
 .hero_trim_vehicle,
@@ -388,7 +391,7 @@ button {
 
 .hero_color_seat_preview {
   position: absolute;
-  right: 168px;
+  right: 208px;
   bottom: 36px;
   /* 시트 이미지 위치 조정 */
   width: 208px;
@@ -423,7 +426,7 @@ button {
 
 .hero_color_panel {
   width: 100%;
-  padding: 20px 20px 24px;
+  padding: 32px;
   border-radius: 32px;
   background: rgba(121, 121, 121, 0.22);
   border: 1px solid rgba(251, 246, 239, 0.18);
@@ -435,7 +438,7 @@ button {
 }
 
 .hero_color_panel_title {
-  margin: 0 0 20px;
+  margin: 0 0 8px;
   font-size: 40px;
 }
 
@@ -453,11 +456,19 @@ button {
   white-space: nowrap;
 }
 
+.hero_color_panel[aria-labelledby="heroExteriorPanelTitle"] .hero_color_choice_row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--hero-swatch-width);
+  align-items: center;
+  column-gap: 24px;
+  width: 100%;
+}
+
 .hero_color_frame {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: var(--hero-color-frame-padding-block) var(--hero-color-frame-padding-inline);
+  padding: 16px 32px;
 }
 
 .hero_color_choice_name {
@@ -479,15 +490,22 @@ button {
   color: var(--kia-white1);
 }
 
+.hero_color_panel[aria-labelledby="heroExteriorPanelTitle"] .hero_color_choice_price {
+  margin-left: 0;
+  text-align: center;
+}
+
 .hero_color_swatches {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-wrap: nowrap;
+  gap: 0;
+  justify-content: space-between;
 }
 
 .hero_color_swatches_interior {
-  gap: 14px;
+  justify-content: flex-start;
+  gap: 32px;
 }
 
 .hero_color_swatch {
@@ -519,7 +537,17 @@ button {
 }
 
 .hero_color_swatch.is-selected::after {
-  content: none;
+  content: "v";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%);
+  color: #fbf6ef;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .hero_color_swatch_ivory_silver.is-selected,
@@ -534,7 +562,7 @@ button {
 .hero_color_swatch_ivory_silver.is-selected::after,
 .hero_color_swatch_white_pearl.is-selected::after,
 .hero_color_swatch_wolf_gray.is-selected::after {
-  content: none;
+  color: #121212;
 }
 
 .hero_color_swatch_interior {
@@ -596,6 +624,7 @@ button {
 
 .hero_package_vehicle {
   margin-top: -8px;
+  transform: translateX(var(--hero-stage-vehicle-shift-x));
 }
 
 .hero_package_panel {
