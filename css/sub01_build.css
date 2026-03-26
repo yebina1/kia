@@ -52,9 +52,10 @@ button {
   --hero-color-frame-padding-block: 32px;
   --hero-color-frame-padding-inline: 16px;
   --hero-vehicle-max-width: 1140px;
+  --hero-stage-panel-width: 765px;
   --hero-model-vehicle-width: min(76vw, var(--hero-vehicle-max-width));
   --hero-stage-vehicle-width: min(76vw, var(--hero-vehicle-max-width));
-  --hero-stage-panel-offset-x: -80px;
+  --hero-stage-panel-offset-x: -0px;
   /* 오른쪽 카드 위치 조정 */
   --hero-title-offset-y: 100px;
   /* 모델 페이지 모델명 위치 조정 가능 */
@@ -239,12 +240,18 @@ button {
   display: none;
 }
 
-.hero_trim_stage {
+.hero_trim_stage,
+.hero_color_stage,
+.hero_package_stage {
   position: absolute;
   inset: 120px 64px 120px;
   display: none;
-  grid-template-columns: minmax(860px, var(--hero-vehicle-max-width)) minmax(320px, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
+  z-index: 4;
+}
+
+.hero_trim_stage {
+  grid-template-columns: minmax(860px, 1fr) var(--hero-stage-panel-width);
   grid-template-areas:
     "intro panel"
     "vehicle panel"
@@ -252,7 +259,6 @@ button {
   column-gap: 40px;
   row-gap: 80px;
   align-items: start;
-  z-index: 4;
 }
 
 .hero_trim_stage.is-visible {
@@ -260,18 +266,13 @@ button {
 }
 
 .hero_color_stage {
-  position: absolute;
-  inset: 120px 64px 120px;
-  display: none;
-  grid-template-columns: minmax(860px, var(--hero-vehicle-max-width)) minmax(360px, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(860px, 1fr) var(--hero-stage-panel-width);
   grid-template-areas:
     "intro panels"
     "vehicle panels"
     "vehicle actions";
   column-gap: 40px;
   row-gap: 56px;
-  z-index: 4;
 }
 
 .hero_color_stage.is-visible {
@@ -279,30 +280,29 @@ button {
 }
 
 .hero_package_stage {
-  position: absolute;
-  inset: 120px 64px 120px;
-  display: none;
   grid-template-columns: minmax(860px, var(--hero-vehicle-max-width)) minmax(420px, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "intro panel"
     "vehicle panel"
     "bottom bottom";
   column-gap: 40px;
   row-gap: 24px;
-  z-index: 4;
 }
 
 .hero_package_stage.is-visible {
   display: grid;
 }
 
-.hero_color_intro {
+.hero_trim_intro,
+.hero_color_intro,
+.hero_package_intro {
   grid-area: intro;
   max-width: 420px;
 }
 
-.hero_color_title {
+.hero_trim_title,
+.hero_color_title,
+.hero_package_title {
   margin: 0 0 8px;
   letter-spacing: 2px;
   display: inline-flex;
@@ -310,17 +310,26 @@ button {
   gap: 6px;
 }
 
-.hero_color_summary {
+.hero_trim_summary,
+.hero_color_summary,
+.hero_package_summary {
   padding-left: 16px;
 }
 
+.hero_trim_grade,
 .hero_color_trim,
+.hero_package_trim,
+.hero_trim_price,
 .hero_color_price,
-.hero_color_lease {
+.hero_package_price,
+.hero_trim_lease,
+.hero_color_lease,
+.hero_package_lease {
   margin: 0;
   color: #fbf6ef;
 }
 
+.hero_trim_grade,
 .hero_color_trim {
   font-family: "Inter", sans-serif;
   font-size: 24px;
@@ -328,27 +337,52 @@ button {
   margin-bottom: 8px;
 }
 
+.hero_package_trim {
+  font-family: "Inter", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.hero_trim_price,
 .hero_color_price,
-.hero_color_lease {
+.hero_package_price,
+.hero_trim_lease,
+.hero_color_lease,
+.hero_package_lease {
   font-family: "Inter", sans-serif;
   font-size: 20px;
   line-height: 1.5;
   color: rgba(251, 246, 239, 0.85);
 }
 
+.hero_trim_vehicle,
 .hero_color_vehicle {
   grid-area: vehicle;
-  position: relative;
   align-self: end;
   justify-self: start;
   width: var(--hero-stage-vehicle-width);
+}
+
+.hero_color_vehicle {
+  position: relative;
   margin-top: -24px;
 }
 
-.hero_color_vehicle img {
+.hero_trim_vehicle,
+.hero_package_vehicle {
+  filter: drop-shadow(0 30px 35px rgba(0, 0, 0, 0.32));
+}
+
+.hero_trim_vehicle img,
+.hero_color_vehicle img,
+.hero_package_vehicle img {
   width: 100%;
   height: auto;
   object-fit: contain;
+}
+
+.hero_color_vehicle img {
   filter: drop-shadow(0 30px 35px rgba(0, 0, 0, 0.32));
 }
 
@@ -382,10 +416,13 @@ button {
   flex-direction: column;
   gap: 24px;
   align-self: start;
+  width: var(--hero-stage-panel-width);
+  max-width: var(--hero-stage-panel-width);
   transform: translateX(var(--hero-stage-panel-offset-x));
 }
 
 .hero_color_panel {
+  width: 100%;
   padding: 20px 20px 24px;
   border-radius: 32px;
   background: rgba(121, 121, 121, 0.22);
@@ -557,58 +594,8 @@ button {
   --swatch-base: none;
 }
 
-.hero_package_intro {
-  grid-area: intro;
-  max-width: 420px;
-}
-
-.hero_package_title {
-  margin: 0 0 8px;
-  letter-spacing: 2px;
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.hero_package_summary {
-  padding-left: 16px;
-}
-
-.hero_package_trim,
-.hero_package_price,
-.hero_package_lease {
-  margin: 0;
-  color: #fbf6ef;
-}
-
-.hero_package_trim {
-  font-family: "Inter", sans-serif;
-  font-size: 24px;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.hero_package_price,
-.hero_package_lease {
-  font-family: "Inter", sans-serif;
-  font-size: 20px;
-  line-height: 1.5;
-  color: rgba(251, 246, 239, 0.85);
-}
-
 .hero_package_vehicle {
-  grid-area: vehicle;
-  align-self: end;
-  justify-self: start;
-  width: var(--hero-stage-vehicle-width);
   margin-top: -8px;
-  filter: drop-shadow(0 30px 35px rgba(0, 0, 0, 0.32));
-}
-
-.hero_package_vehicle img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
 }
 
 .hero_package_panel {
@@ -762,30 +749,9 @@ button {
 }
 
 .hero_trim_intro {
-  grid-area: intro;
   align-self: start;
   padding-top: 0;
   padding-left: 0;
-  max-width: 420px;
-}
-
-.hero_trim_title {
-  margin: 0 0 8px;
-  letter-spacing: 2px;
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.hero_trim_summary {
-  padding-left: 16px;
-}
-
-.hero_trim_grade,
-.hero_trim_price,
-.hero_trim_lease {
-  margin: 0;
-  color: #fbf6ef;
 }
 
 .hero_trim_grade {
@@ -795,33 +761,16 @@ button {
   margin-bottom: 8px;
 }
 
-.hero_trim_price,
-.hero_trim_lease {
-  font-family: "Inter", sans-serif;
-  font-size: 20px;
-  line-height: 1.5;
-  color: rgba(251, 246, 239, 0.85);
-}
-
 .hero_trim_vehicle {
-  grid-area: vehicle;
-  align-self: end;
-  justify-self: start;
-  width: var(--hero-stage-vehicle-width);
   margin-top: -20px;
-  filter: drop-shadow(0 30px 35px rgba(0, 0, 0, 0.32));
-}
-
-.hero_trim_vehicle img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
 }
 
 .hero_trim_panel {
   grid-area: panel;
   align-self: stretch;
   min-height: 0;
+  width: var(--hero-stage-panel-width);
+  max-width: var(--hero-stage-panel-width);
   transform: translateX(var(--hero-stage-panel-offset-x));
   padding: 32px;
   border-radius: 32px;
@@ -1021,13 +970,11 @@ button {
   transform: rotate(-135deg);
 }
 
-.hero_trim_actions,
-.hero_color_actions {
+.hero_stage_actions {
   grid-area: actions;
-  position: absolute;
-  left: var(--hero-stage-actions-center-x);
-  right: var(--hero-stage-actions-right);
-  bottom: var(--hero-stage-actions-bottom);
+  position: relative;
+  justify-self: center;
+  align-self: start;
   width: fit-content;
   display: flex;
   align-items: center;
@@ -1038,26 +985,10 @@ button {
   padding-top: 0;
   border-top: 0;
   min-height: 48px;
-  transform: translateX(-50%);
-}
-
-.hero_package_actions {
-  grid-area: actions;
-  position: absolute;
-  left: var(--hero-stage-actions-center-x);
-  right: auto;
-  bottom: var(--hero-stage-actions-bottom);
-  width: fit-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--hero-stage-actions-gap);
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-top: 0;
-  border-top: 0;
-  min-height: 48px;
-  transform: translateX(-50%);
+  transform: translate(
+    var(--hero-stage-panel-offset-x),
+    calc(var(--hero-stage-actions-bottom) * -1)
+  );
 }
 
 .hero_trim_action_btn {
@@ -1109,11 +1040,13 @@ button {
 .hero_trim_stage.is-visible ~ .hero_bottom_steps,
 .hero_color_stage.is-visible ~ .hero_bottom_steps,
 .hero_package_stage.is-visible ~ .hero_bottom_steps {
-  left: var(--hero-stage-steps-left);
+  /* 상태바 위치 조정 */
+  left: calc(50% - 450px);
+  right: auto;
   bottom: var(--hero-stage-steps-bottom);
-  transform: var(--hero-stage-steps-transform);
-  width: var(--hero-stage-steps-width);
-  max-width: var(--hero-stage-steps-max-width);
+  transform: translateX(-50%);
+  width: fit-content;
+  max-width: min(88vw, 760px);
 }
 
 .hero_trim_stage.is-visible ~ .hero_bottom_steps .hero_bottom_tabs,
@@ -1563,9 +1496,7 @@ button {
     font-size: 18px;
   }
 
-  .hero_trim_actions,
-  .hero_color_actions,
-  .hero_package_actions {
+  .hero_stage_actions {
     justify-content: center;
     gap: 24px;
     padding-right: 0;
@@ -1804,17 +1735,13 @@ button {
     font-size: 12px;
   }
 
-  .hero_trim_actions,
-  .hero_color_actions,
-  .hero_package_actions {
+  .hero_stage_actions {
     justify-content: space-between;
     gap: 8px;
     padding-right: 0;
   }
 
-  .hero_trim_actions .hero_trim_action_btn,
-  .hero_color_actions .hero_trim_action_btn,
-  .hero_package_actions .hero_trim_action_btn {
+  .hero_stage_actions .hero_trim_action_btn {
     min-width: 0;
     width: calc(50% - 4px);
     height: 40px;

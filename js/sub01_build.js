@@ -38,8 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextColorButton = document.getElementById("nextColorButton");
   const viewTrimButton = document.getElementById("viewTrimButton");
   const nextPackagesButton = document.getElementById("nextPackagesButton");
-  const viewColorButton = document.getElementById("viewColorButton");
-  const nextAccessoriesButton = document.getElementById("nextAccessoriesButton");
   const topTabButtons = Array.from(
     document.querySelectorAll(".hero_top_tabs button")
   );
@@ -1089,14 +1087,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   nextPackagesButton?.addEventListener("click", () => {
     updateSteps(Math.min(3, stepButtons.length - 1));
-  });
-
-  viewColorButton?.addEventListener("click", () => {
-    updateSteps(2);
-  });
-
-  nextAccessoriesButton?.addEventListener("click", () => {
-    updateSteps(Math.min(4, stepButtons.length - 1));
   });
 
   heroTrimCards?.addEventListener("click", (event) => {
