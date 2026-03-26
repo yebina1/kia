@@ -1,25 +1,24 @@
 @charset "utf-8";
 
+:root {
+    --belt-speed: 110;
+    --belt-stage-width: 100vw;
+}
+
 /* section.ev6 */
-/* ===== ?¤í¬ë¡?ì»¨í…Œ?´ë„ˆ ===== */
 .ev6 {
   position: relative;
   height: 600vh;
-  background-color: #0a0e17;
 }
 
-/* ===== ê³ ì • ë·°í¬??===== */
 .ev6 .inner {
   position: sticky;
   top: 0;
   width: 100%;
   height: 100vh;
   overflow: hidden;
-
-  background-color: #0a0e17;
 }
 
-/* ===== ?ë‹¨ ?€?´í? ?ì—­ ===== */
 .tit {
   position: relative;
   z-index: 100;
@@ -44,7 +43,6 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* ===== ë©”ì¸ ?ˆì´??===== */
 .main_layer {
   position: absolute;
   top: 0;
@@ -94,7 +92,6 @@
   -webkit-user-drag: none;
 }
 
-/* ===== ?¬í†  ?ˆì´??===== */
 .photo_layer {
   position: absolute;
   top: 0;
@@ -135,7 +132,6 @@
   -webkit-user-drag: none;
 }
 
-/* ===== ?¤í¬ë¡??¸ë””ì¼€?´í„° ===== */
 #scroll_indicator {
   position: absolute;
   bottom: 2rem;
@@ -199,7 +195,6 @@
 
 
 /* section.match */
-/* ===== Intro: ê¸°ë³¸ HTML êµ¬ì¡°??ë°°ê²½ ?ìš© ===== */
 .match .inner {
   padding: 0;
 }
@@ -230,7 +225,6 @@
   margin-top: 16px;
 }
 
-/* SplitText char ? ë‹ˆë©”ì´??*/
 .char {
   position: relative;
   overflow: hidden;
@@ -255,7 +249,6 @@ section[class*="option"] .inner {
   flex-direction: column;
 }
 
-/* Top: ?œëª© + ë§í¬ */
 section[class*="option"] .top {
   flex: 1;
   width: 100%;
@@ -281,7 +274,6 @@ section[class*="option"] .top a:hover {
   text-decoration: underline;
 }
 
-/* ===== Bottom: Cars ë¦¬ìŠ¤??===== */
 section[class*="option"] .bottom {
   width: 100%;
   height: 800px;
@@ -371,7 +363,6 @@ section[class*="option"] .bottom>ul.cars>li strong{
   transition: opacity 0.4s ease;
 }
 
-/* ===== Hover: info_con ?¨ê?/?œì‹œ ===== */
 section[class*="option"] .bottom>ul.cars>li .info_con {
   position: absolute;
   top: 0;
@@ -431,10 +422,168 @@ section[class*="option"] .bottom>ul.cars>li .info_con>ul.info>li>p{
   line-height: 130%
 }
 
-/* hover??ê¸°ì¡´ h2, p ?¨ê¸°ê¸?*/
 section[class*="option"] .bottom>ul.cars>li:hover>h2,
 section[class*="option"] .bottom>ul.cars>li:hover>strong {
   opacity: 0;
+}
+
+/* section.partnership */
+.partnership {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.partnership .inner {
+    width: 100%;
+    height: 100vh;
+    margin: 0 auto;
+    padding: 72px 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 32px;
+    overflow: hidden;
+}
+
+.tit {
+    text-align: center;
+}
+
+.tit p {
+    margin-top: 24px;
+    font-size: clamp(16px, 1.8vw, 24px);
+    color: var(--kia-white2);
+}
+
+.par_visual {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    overflow: hidden;
+}
+
+.belt_stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2048 / 921;
+    overflow: hidden;
+}
+
+.belt_motion_view {
+    position: absolute;
+    inset: 0;
+}
+
+.belt_track_window {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.rail_lane {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.rail_track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    position: relative;
+    z-index: 2;
+    transform: translate3d(0, 0, 0);
+}
+
+.rail_item {
+    flex: 0 0 auto;
+    width: 100%;
+}
+
+.rail_item img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.car_lane {
+    position: absolute;
+    left: 0;
+    width: 86.6%;
+    bottom: 20%;
+    overflow: hidden;
+    z-index: 3;
+}
+
+.car_lane_track {
+    z-index: 3;
+}
+
+.car_track {
+    display: flex;
+    align-items: flex-end;
+    width: max-content;
+    gap: clamp(84px, 6vw, 148px);
+    position: relative;
+    z-index: 3;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+
+.car_item {
+    flex: 0 0 auto;
+    height: clamp(152px, 15vw, 300px);
+    width: auto;
+    display: flex;
+    align-items: flex-end;
+}
+
+.car_item img {
+    display: block;
+    width: auto;
+    height: 100%;
+}
+
+.belt_machine {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.belt_machine_base {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    z-index: 1;
+}
+
+.belt_machine_body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    z-index: 4;
 }
 
 /* section.review */
@@ -444,64 +593,10 @@ body.review_locked {
     overscroll-behavior: none;
 }
 
-.review{
-    position: relative;
-}
-
-.review .inner {
-    max-width: 1440px;
-    height: 100vh;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    padding-block: 60px;
-}
-
-.review .tit {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    gap: 16px;
-    z-index: 20;
-}
-
-.review .review_con {
-    display: flex;
-    justify-content: center;
-    gap: 60px;
-    height: 530px;
-    overflow: hidden;
-    align-items: flex-start;
-    padding-top: 115px;
-}
-
-.review .review_con ul.re_left,
-.review .review_con ul.re_right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-    will-change: transform;
-}
-
-.review .review_con ul > li {
-    border-radius: 32px;
-    transition: all 0.5s ease;
-    flex-shrink: 0;
-    display: flex;
-    background: #555;
-    /* ?µì‹¬: ëª¨ë“  liê°€ ?„ë¡œ 24px???¬ë¼?€??ê²¹ì¹˜ê²??¤ì • */
-    margin-top: -12px;
-    position: relative;
-    z-index: 1;
-} 
-
-/* ì²?ë²ˆì§¸ ì¹´ë“œ???„ë¡œ ?¬ë¼ê°??„ìš”ê°€ ?†ìœ¼ë¯€ë¡?ë§ˆì§„ ?œê±° */
 .review {
     position: relative;
     width: 100%;
-    min-height: 100vh; /* ?¹ì…˜???”ë©´??ê½?ì±„ìš°?„ë¡ ?¤ì • */
+    min-height: 100vh;
     overflow: hidden;
     overscroll-behavior: contain;
 }

@@ -1,1 +1,52 @@
 @charset "utf-8";
+
+@media (max-width: 1024px) {
+    :root {
+        --belt-speed: 92;
+    }
+
+    .partnership .inner {
+        padding-top: 64px;
+        gap: 28px;
+    }
+
+    .car_item {
+        height: clamp(118px, 14.8vw, 172px);
+    }
+
+    .car_lane {
+        width: 86.4%;
+        bottom: 22.1%;
+    }
+}
+
+@media (max-width: 640px) {
+    :root {
+        --belt-speed: 72;
+    }
+
+    .partnership .inner {
+        height: 100vh;
+        padding: 48px 0 0;
+        gap: 20px;
+    }
+
+    .tit p {
+        margin-top: 12px;
+        font-size: 14px;
+    }
+
+    .car_lane {
+        width: 85.8%;
+        bottom: 22.8%;
+    }
+
+    .car_track {
+        gap: 48px;
+    }
+
+    .car_item {
+        height: 24vw;
+    }
+
+}
