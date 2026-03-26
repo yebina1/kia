@@ -358,7 +358,8 @@ button {
 }
 
 .hero_trim_vehicle,
-.hero_color_vehicle {
+.hero_color_vehicle,
+.hero_package_vehicle {
   grid-area: vehicle;
   align-self: end;
   justify-self: start;
@@ -624,7 +625,6 @@ button {
 
 .hero_package_vehicle {
   margin-top: -8px;
-  transform: translateX(var(--hero-stage-vehicle-shift-x));
 }
 
 .hero_package_panel {
