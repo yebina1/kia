@@ -59,9 +59,10 @@ const DESKTOP_TAB_POINT_CENTERS = {
 const MODAL_TRANSITION_MS = 420;
 const MOBILE_SWIPE_THRESHOLD = 40;
 const DESKTOP_SCROLL_LOCK_MS = 1100;
+const MOBILE_DRAG_MAX_OFFSET = 72;
 
 function isMobileViewport() {
-    return window.innerWidth < MOBILE_LAYOUT_BREAKPOINT;
+    return window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -88,7 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
         lastDesktopNavigationAt: 0,
         releaseTimer: 0,
         touchStartX: 0,
+        touchStartY: 0,
         touchDeltaX: 0,
+        touchDeltaY: 0,
+        touchTracking: false,
+        activePointerId: null,
         modalCloseTimer: 0
     };
 
@@ -144,7 +149,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     buildTrigger?.addEventListener("click", () => {
         const activeSection = sections[state.activeIndex];
-        if (!canOpenSelectionModal(activeSection)) return;
+        if (!activeSection) return;
+        populateSelectionModal(activeSection, modal);
         openSelectionModal(modal, state);
     });
 
@@ -152,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const mobileBuildButton = section.querySelector(".mobile_build");
 
         mobileBuildButton?.addEventListener("click", () => {
-            if (!canOpenSelectionModal(section)) return;
+            populateSelectionModal(section, modal);
             openSelectionModal(modal, state);
         });
     });
@@ -163,14 +169,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     carAll.addEventListener("touchstart", (event) => {
         if (!isMobileViewport()) return;
-        state.touchStartX = event.touches[0]?.clientX || 0;
-        state.touchDeltaX = 0;
+        beginMobileSwipeTracking(
+            state,
+            event.touches[0]?.clientX || 0,
+            event.touches[0]?.clientY || 0
+        );
     }, { passive: true });
 
     carAll.addEventListener("touchmove", (event) => {
         if (!isMobileViewport()) return;
-        const currentX = event.touches[0]?.clientX || 0;
-        state.touchDeltaX = currentX - state.touchStartX;
+        updateMobileSwipeTracking(
+            state,
+            event.touches[0]?.clientX || 0,
+            event.touches[0]?.clientY || 0
+        );
+        applyMobileSwipeVisual(state, sections);
     }, { passive: true });
 
     carAll.addEventListener("touchend", () => {
@@ -178,20 +191,44 @@ document.addEventListener("DOMContentLoaded", () => {
         handleMobileSwipeEnd(state, sections, carAll, mobileTabs, title);
     }, { passive: true });
 
+    carAll.addEventListener("touchcancel", () => {
+        resetMobileSwipeTracking(state);
+        clearMobileSwipeVisual(sections);
+    }, { passive: true });
+
     carAll.addEventListener("pointerdown", (event) => {
-        if (!isMobileViewport() || event.pointerType === "mouse") return;
-        state.touchStartX = event.clientX;
-        state.touchDeltaX = 0;
+        if (!isMobileViewport()) return;
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+
+        state.activePointerId = event.pointerId;
+        beginMobileSwipeTracking(state, event.clientX, event.clientY);
+        carAll.setPointerCapture?.(event.pointerId);
     }, { passive: true });
 
     carAll.addEventListener("pointermove", (event) => {
-        if (!isMobileViewport() || event.pointerType === "mouse") return;
-        state.touchDeltaX = event.clientX - state.touchStartX;
+        if (!isMobileViewport()) return;
+        if (state.activePointerId !== event.pointerId) return;
+
+        updateMobileSwipeTracking(state, event.clientX, event.clientY);
+        applyMobileSwipeVisual(state, sections);
     }, { passive: true });
 
     carAll.addEventListener("pointerup", (event) => {
-        if (!isMobileViewport() || event.pointerType === "mouse") return;
+        if (!isMobileViewport()) return;
+        if (state.activePointerId !== event.pointerId) return;
+
+        carAll.releasePointerCapture?.(event.pointerId);
+        state.activePointerId = null;
         handleMobileSwipeEnd(state, sections, carAll, mobileTabs, title);
+    }, { passive: true });
+
+    carAll.addEventListener("pointercancel", (event) => {
+        if (state.activePointerId !== event.pointerId) return;
+
+        carAll.releasePointerCapture?.(event.pointerId);
+        state.activePointerId = null;
+        resetMobileSwipeTracking(state);
+        clearMobileSwipeVisual(sections);
     }, { passive: true });
 
     window.addEventListener("wheel", (event) => {
@@ -290,8 +327,11 @@ function closeSelectionModal(modal, state) {
 function handleMobileSwipeEnd(state, sections, carAll, mobileTabs, title) {
     if (!isMobileViewport()) return;
 
-    if (Math.abs(state.touchDeltaX) < MOBILE_SWIPE_THRESHOLD) {
-        state.touchDeltaX = 0;
+    const isHorizontalSwipe = Math.abs(state.touchDeltaX) > Math.abs(state.touchDeltaY);
+
+    if (!state.touchTracking || !isHorizontalSwipe || Math.abs(state.touchDeltaX) < MOBILE_SWIPE_THRESHOLD) {
+        resetMobileSwipeTracking(state);
+        animateMobileSwipeBack(sections);
         return;
     }
 
@@ -300,7 +340,8 @@ function handleMobileSwipeEnd(state, sections, carAll, mobileTabs, title) {
     );
 
     if (!visibleSections.length) {
-        state.touchDeltaX = 0;
+        resetMobileSwipeTracking(state);
+        clearMobileSwipeVisual(sections);
         return;
     }
 
@@ -311,8 +352,86 @@ function handleMobileSwipeEnd(state, sections, carAll, mobileTabs, title) {
         visibleSections.length - 1
     );
 
-    state.touchDeltaX = 0;
+    resetMobileSwipeTracking(state);
+    animateMobileSwipeBack(sections);
     syncMobileGroup(state, sections, carAll, mobileTabs, title);
+}
+
+function beginMobileSwipeTracking(state, startX, startY) {
+    state.touchStartX = startX;
+    state.touchStartY = startY;
+    state.touchDeltaX = 0;
+    state.touchDeltaY = 0;
+    state.touchTracking = true;
+}
+
+function updateMobileSwipeTracking(state, currentX, currentY) {
+    if (!state.touchTracking) return;
+
+    state.touchDeltaX = currentX - state.touchStartX;
+    state.touchDeltaY = currentY - state.touchStartY;
+}
+
+function resetMobileSwipeTracking(state) {
+    state.touchDeltaX = 0;
+    state.touchDeltaY = 0;
+    state.touchTracking = false;
+    state.activePointerId = null;
+}
+
+function applyMobileSwipeVisual(state, sections) {
+    if (!isMobileViewport() || !state.touchTracking) return;
+
+    const currentSection = getCurrentMobileSection(state, sections);
+    if (!currentSection) return;
+
+    const absX = Math.abs(state.touchDeltaX);
+    const absY = Math.abs(state.touchDeltaY);
+
+    if (absY > absX) {
+        currentSection.style.transform = "";
+        currentSection.style.opacity = "";
+        return;
+    }
+
+    const clampedOffset = clamp(state.touchDeltaX, -MOBILE_DRAG_MAX_OFFSET, MOBILE_DRAG_MAX_OFFSET);
+    const progress = Math.min(absX / 160, 1);
+
+    currentSection.classList.add("is-dragging");
+    currentSection.classList.remove("is-drag-resetting");
+    currentSection.style.transform = `translateX(${clampedOffset}px)`;
+    currentSection.style.opacity = String(1 - progress * 0.12);
+}
+
+function animateMobileSwipeBack(sections) {
+    sections.forEach((section) => {
+        if (!section.classList.contains("is-mobile-current")) return;
+
+        section.classList.remove("is-dragging");
+        section.classList.add("is-drag-resetting");
+        section.style.transform = "";
+        section.style.opacity = "";
+
+        window.setTimeout(() => {
+            section.classList.remove("is-drag-resetting");
+        }, 220);
+    });
+}
+
+function clearMobileSwipeVisual(sections) {
+    sections.forEach((section) => {
+        section.classList.remove("is-dragging");
+        section.classList.remove("is-drag-resetting");
+        section.style.transform = "";
+        section.style.opacity = "";
+    });
+}
+
+function getCurrentMobileSection(state, sections) {
+    return sections.find((section) =>
+        section.dataset.mobileGroup === state.activeMobileGroup &&
+        Number(section.dataset.mobileIndex) === state.currentMobileIndex
+    ) || null;
 }
 
 function normalizeFeatureBullets(sections) {
@@ -376,7 +495,7 @@ function enhanceMobileCards(sections) {
             }
         }
 
-        if (section.id === "telluride_outdoor" && !section.querySelector(".mobile_build")) {
+        if (!section.querySelector(".mobile_build")) {
             const mobileBuildButton = document.createElement("button");
             mobileBuildButton.type = "button";
             mobileBuildButton.className = "mobile_build";
@@ -391,8 +510,44 @@ function enhanceMobileCards(sections) {
     });
 }
 
-function canOpenSelectionModal(section) {
-    return Boolean(section && section.id === "telluride_outdoor");
+function populateSelectionModal(section, modal) {
+    if (!section || !modal) return;
+
+    const modalTitle = modal.querySelector("#selection-modal-title");
+    const modalDescription = modal.querySelector(".selection_modal_desc p:last-child");
+    const modalSpecs = modal.querySelector(".selection_modal_specs ul");
+    const modalImage = modal.querySelector(".selection_modal_visual img");
+    const subtitle = section.querySelector(".title p")?.textContent?.trim();
+    const heading = section.querySelector(".title h2")?.textContent?.trim();
+    const description = section.querySelector(".top > p")?.textContent?.replace(/\s+/g, " ").trim();
+    const heroImage = MOBILE_HERO_IMAGES[section.id];
+    const firstImage = section.querySelector("ul li img");
+
+    if (modalTitle) {
+        modalTitle.textContent = subtitle && heading ? `${heading} (${subtitle})` : (heading || "Recommended");
+    }
+
+    if (modalDescription) {
+        modalDescription.textContent = description || "";
+    }
+
+    if (modalSpecs) {
+        modalSpecs.innerHTML = "";
+
+        section.querySelectorAll("ul li .txt_box b").forEach((item) => {
+            const spec = item.textContent?.replace(/\s+/g, " ").trim();
+            if (!spec) return;
+
+            const li = document.createElement("li");
+            li.textContent = spec.replace(/^\u2023\s*/, "");
+            modalSpecs.append(li);
+        });
+    }
+
+    if (modalImage) {
+        modalImage.src = heroImage?.src || firstImage?.getAttribute("src") || modalImage.src;
+        modalImage.alt = heroImage?.alt || heading || modalImage.alt;
+    }
 }
 
 function applyScrollLayout(recco, totalSections) {
@@ -537,8 +692,11 @@ function syncMobileGroup(state, sections, carAll, buttons, title) {
     visibleSections.forEach((section, index) => {
         const isCurrent = index === safeIndex;
         section.classList.toggle("is-mobile-current", isCurrent);
+        section.classList.remove("is-dragging", "is-drag-resetting");
         section.style.display = isCurrent ? "flex" : "none";
         section.style.pointerEvents = isCurrent ? "auto" : "none";
+        section.style.transform = "";
+        section.style.opacity = "";
 
         section.querySelectorAll(".mobile_dots span").forEach((dot, dotIndex) => {
             dot.classList.toggle("is-active", dotIndex === safeIndex);
