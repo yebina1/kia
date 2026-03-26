@@ -6,7 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>kia</title>
 
-    <!-- 가져온 css -->
+    <!-- 내 css -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/sub01_build.css">
+    <!-- media css -->
+    <link rel="stylesheet" href="css/common_media.css">
+    <link rel="stylesheet" href="css/sub01_build_media.css">
+    <!-- 가져온 js -->
+
+
     <!-- Basic Icons -->
     <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
     <!-- Filled Icons -->
@@ -16,27 +25,18 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
-    <!-- 내 css -->
-    <link rel="stylesheet" href="css/reset.css">
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/sub01_build.css">
-    <link rel="stylesheet" href="css/common_media.css">
-    <link rel="stylesheet" href="css/sub01_build_media.css">
-
-    <!-- 가져온 js -->
     <script src="js/common.js" defer></script>
     <script src="js/sub01_build.js" defer></script>
 </head>
 
 <body>
     <div class="wrap build_wrap" style="--build-page-bg: url('./img/sub01_build/build_bg.png');">
-        <!-- Header -->
         <header>
             <div class="inner">
                 <h1>KIA</h1>
                 <nav class="glass_bg2">
                     <ul class="gnb">
-                        <li>
+                        <li class="">
                             <a href="">company</a>
                             <ul class="sub trans_origin2">
                                 <li><a href="">why kia</a></li>
@@ -45,7 +45,7 @@
                                 <li><a href="">event</a></li>
                             </ul>
                         </li>
-                        <li>
+                        <li class="">
                             <a href="">vehicles</a>
                             <ul class="sub trans_origin2">
                                 <li><a href="">EV</a></li>
@@ -81,13 +81,15 @@
                         <li>
                             <a href="">owners page</a>
                         </li>
-                    </ul>
-                    <div class="icons"></div>
+                    </ul> <!-- //.gnb -->
+                    <div class="icons">
+
+                    </div> <!-- //.icons -->
                 </nav>
-            </div>
+            </div> <!-- //.inner -->
         </header>
 
-        <!-- Build Hero -->
+        <!-- -->
         <section class="hero" id="heroSection" data-default-bg="./img/sub01_build/build_bg.png">
             <div class="hero_bg" aria-hidden="true">
                 <img id="heroBgImage" src="./img/sub01_build/build_bg.png" alt="" />
@@ -96,14 +98,12 @@
             <div class="hero_header_space"></div>
 
             <div class="hero_visual" id="heroVisual">
-
-                <!-- Shared Stage Header -->
                 <div class="hero_trim_header" id="heroTrimHeader" aria-hidden="true">
                     <div class="hero_trim_header_logo" aria-hidden="true"></div>
                     <div class="hero_trim_header_nav" aria-hidden="true"></div>
                 </div>
 
-                <!-- Model Category Tabs -->
+                <!-- 상단 tab 카테고리 영역 -->
                 <div class="hero_top_tabs" id="heroTopTabs" role="tablist" aria-label="Vehicle categories">
                     <button type="button" class="active" data-category="ev" role="tab" aria-selected="true">EV</button>
                     <button type="button" data-category="suv" role="tab" aria-selected="false">Sedans</button>
@@ -111,7 +111,7 @@
                     <button type="button" data-category="sedans" role="tab" aria-selected="false">CUV</button>
                 </div>
 
-                <!-- Hidden Catalog Data -->
+                <!-- model 모델명 및 카드 이미지 영역 -->
                 <div class="hero_catalog" id="heroCatalog" aria-hidden="true">
                     <section class="hero_category_panel" data-category="suv">
                         <ul class="hero_car_list">
@@ -157,11 +157,13 @@
                     </section>
                 </div>
 
-                <!-- 1. Model Stage -->
+                <!-- 단계바 모델 선택 시 리셋되는 영역 -->
+
                 <div class="hero_model_stage" id="heroModelStage">
                     <div class="hero_center">
                         <h2 class="hero_title" id="heroTitle">Sportage</h2>
 
+                        <!-- 차량 사진 옆 좌우 버튼 -->
                         <button class="hero_arrow hero_arrow_left" id="prevCar" type="button" aria-label="이전">
                             &#10094;
                         </button>
@@ -169,13 +171,13 @@
                             &#10095;
                         </button>
 
+                        <!-- 모델 선택 화면용 차량 이미지 -->
                         <div class="hero_car">
                             <img id="heroCarImage" src="./img/sub01_build/trim_light.png" alt="ev9 image" />
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. Trim Stage -->
                 <div class="hero_trim_stage" id="heroTrimStage" aria-hidden="true">
                     <div class="hero_trim_intro">
                         <h2 class="hero_trim_title" id="heroTrimTitle">EV9</h2>
@@ -189,9 +191,11 @@
                     <div class="hero_trim_vehicle">
                         <img id="heroTrimImage" src="./img/sub01_build/trim_light.png" alt="EV9 Light RWD" />
                     </div>
-
+                    <!-- trim -->
                     <section class="hero_trim_panel" aria-label="Trim options">
                         <h3 class="hero_trim_panel_title">Trim</h3>
+
+                        <!--Light RWD + 기본 상태  -->
                         <div class="hero_trim_cards" id="heroTrimCards">
                             <article class="hero_trim_card selected expanded" data-trim-index="0">
                                 <img class="hero_trim_card_asset" src="./img/sub01_build/trim_light.png"
@@ -215,7 +219,7 @@
                                 </div>
                                 <button type="button" class="hero_trim_more_btn" aria-expanded="true">More</button>
                             </article>
-
+                            <!-- Light Long Range RWD -->
                             <article class="hero_trim_card" data-trim-index="1">
                                 <img class="hero_trim_card_asset" src="./img/sub01_build/trim_light.png"
                                     alt="EV9 Light Long Range RWD" />
@@ -238,7 +242,7 @@
                                 </div>
                                 <button type="button" class="hero_trim_more_btn" aria-expanded="false">More</button>
                             </article>
-
+                            <!--  Wind AWD -->
                             <article class="hero_trim_card" data-trim-index="2">
                                 <img class="hero_trim_card_asset" src="./img/sub01_build/trim_wind.png"
                                     alt="EV9 Wind AWD" />
@@ -262,7 +266,7 @@
                                 </div>
                                 <button type="button" class="hero_trim_more_btn" aria-expanded="false">More</button>
                             </article>
-
+                            <!-- Land AWD -->
                             <article class="hero_trim_card" data-trim-index="3">
                                 <img class="hero_trim_card_asset" src="./img/sub01_build/trim_land.png"
                                     alt="EV9 Land AWD" />
@@ -286,7 +290,7 @@
                                 </div>
                                 <button type="button" class="hero_trim_more_btn" aria-expanded="false">More</button>
                             </article>
-
+                            <!-- GT-Line AWD -->
                             <article class="hero_trim_card" data-trim-index="4">
                                 <img class="hero_trim_card_asset" src="./img/sub01_build/trim_gt.png"
                                     alt="EV9 GT-Line AWD" />
@@ -319,7 +323,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Color Stage -->
                 <div class="hero_color_stage" id="heroColorStage" aria-hidden="true">
                     <div class="hero_color_intro">
                         <h2 class="hero_color_title" id="heroColorTitle">EV9</h2>
@@ -431,7 +434,6 @@
                     </div>
                 </div>
 
-                <!-- 4. Packages Stage -->
                 <div class="hero_package_stage" id="heroPackageStage" aria-hidden="true">
                     <div class="hero_package_intro">
                         <h2 class="hero_package_title" id="heroPackageTitle">EV9</h2>
@@ -488,9 +490,14 @@
                         </div>
                     </section>
 
+                    <div class="hero_package_actions">
+                        <button type="button" class="hero_trim_action_btn hero_trim_action_btn_back"
+                            id="viewColorButton">&lt; View Color</button>
+                        <button type="button" class="hero_trim_action_btn" id="nextAccessoriesButton">Next Accessories
+                            &gt;</button>
+                    </div>
                 </div>
 
-                <!-- Start / Progress -->
                 <button type="button" class="hero_start_btn dark_origin" id="startStepButton">Start</button>
 
                 <div class="hero_bottom_steps" id="heroBottomSteps">
@@ -512,7 +519,5 @@
                 </div>
             </div>
         </section>
-    </div>
+    </div> <!-- //.wrap -->
 </body>
-
-</html>
