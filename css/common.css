@@ -357,15 +357,24 @@ header nav ul.gnb>li>a {
   font-weight: 300;
   color: var(--kia-white2);
   padding: 16px;
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
-header nav ul.gnb>li:hover>a{
+header nav ul.gnb>li:hover>a,
+header nav ul.gnb>li:hover>a>i{
   font-weight: 400;
   color: var(--kia-white1);
 }
 
-header nav ul.gnb>li.on>a {
+header nav ul.gnb>li>a>i{
+  font-size: 24px;
+}
+
+header nav ul.gnb>li.on>a,
+header nav ul.gnb>li.on>a>i {
   font-weight: 500;
   color: var(--kia-white1)
 }
@@ -432,6 +441,21 @@ header nav ul.gnb>li>ul.sub>li>a:hover {
   outline-offset: -0.5px;
   overflow: hidden;
   border-radius: 55px;
+}
+
+header nav .icons{
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+header nav .icons img{
+  width: 24px;
+  height: 24px;
+}
+
+header nav .icons i{
+  font-size: 26px;
 }
 
 footer .inner{
