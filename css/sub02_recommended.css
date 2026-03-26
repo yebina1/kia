@@ -341,6 +341,14 @@ body.modal-open {
     display: none;
 }
 
+.mobile_tabs {
+    display: none;
+}
+
+.mobile_build {
+    display: none;
+}
+
 .tab::before {
     content: "";
     position: absolute;
@@ -762,6 +770,10 @@ body.modal-open {
     .car_all ul li img {
         width: 96px;
         height: 96px;
+    }
+
+    .mobile_build {
+        display: inline-flex;
     }
 
     .con > button {
