@@ -332,10 +332,16 @@ header nav ul.gnb>li {
 header nav ul.gnb>li::after {
   content: "";
   position: absolute;
-  left: 0;
   top: 100%;
-  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% + 250px);
   height: 40px; /* 틈 크기 */
+  display: none;
+}
+
+header nav ul.gnb>li:hover::after{
+  display: block;
 }
 
 header nav ul.gnb>li>a {
