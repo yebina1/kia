@@ -284,13 +284,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const stmt = document.getElementById("txtHistory2");
     const movementStage = document.getElementById("movementStage");
     const visionTitle = movementStage?.querySelector(".vision_title");
+    const visionTxt = movementStage?.querySelector(".vision_txt");
     const needsStage = document.getElementById("needsStage");
     const needsTxt = needsStage?.querySelector(".needs_txt");
     const needsLines = Array.from(needsStage?.querySelectorAll(".needs_line") || []);
     const progressBar = document.getElementById("progressBar");
     const sceneTag = document.getElementById("sceneTag");
 
-    if (!shell || !frame || !introCircle || !txtStage || !lead || !stmt || !movementStage || !visionTitle || !needsStage || !needsTxt || !needsLines.length) {
+    if (!shell || !frame || !introCircle || !txtStage || !lead || !stmt || !movementStage || !visionTitle || !visionTxt || !needsStage || !needsTxt || !needsLines.length) {
         return;
     }
 
@@ -326,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function getRingTargetScale() {
         const baseSize = introCircle.offsetWidth || 1;
         const viewportDiameter = Math.max(window.innerWidth, window.innerHeight);
-        return Math.max((viewportDiameter * 2.45) / baseSize, 1);
+        return Math.max((viewportDiameter * 2.7) / baseSize, 1);
     }
 
     function renderProgress(progress) {
@@ -335,18 +336,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const baseRingSize = introCircle.offsetWidth || 1;
         activeSceneIndex = clamp(Math.round(timeline), 0, TOTAL - 1);
 
-        const stmtIn = clamp((timeline - 0.62) / 0.72, 0, 1);
+        const stmtIn = clamp((timeline - 0.54) / 0.52, 0, 1);
         const circleIn = clamp((timeline - 1.36) / 0.32, 0, 1);
-        const circleGrow = clamp((timeline - 1.62) / 1.52, 0, 1);
-        const circleOut = clamp((timeline - 2.94) / 0.42, 0, 1);
-        const movementIn = clamp((timeline - 3.04) / 0.3, 0, 1);
-        const movementOut = clamp((timeline - 3.82) / 0.24, 0, 1);
-        const needsIn = clamp((timeline - 4.12) / 0.26, 0, 1);
+        const circleGrow = clamp((timeline - 1.58) / 1.92, 0, 1);
+        const circleOut = clamp((timeline - 3.18) / 0.56, 0, 1);
+        const movementIn = clamp((timeline - 2.02) / 0.92, 0, 1);
+        const movementOut = clamp((timeline - 3.92) / 0.26, 0, 1);
+        const needsIn = clamp((timeline - 4.26) / 0.26, 0, 1);
         const circleAppear = easeOutCubic(circleIn);
         const circleExpand = easeInOutQuart(circleGrow);
         const circleFade = easeOutCubic(circleOut);
         const circleExitScale = lerp(1, 1.18, circleFade);
-        const ringScale = lerp(0.18, ringTargetScale, Math.pow(circleExpand, 1.12));
+        const ringScale = lerp(0.88, ringTargetScale, Math.pow(circleExpand, 1.12));
         const ringDiameter = baseRingSize * ringScale;
         const textFadeByRing = clamp((ringDiameter - (window.innerWidth * 0.6)) / (window.innerWidth * 0.12), 0, 1);
         const focusIn = clamp((circleGrow - 0.12) / 0.32, 0, 1);
@@ -357,15 +358,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const leadOpacity = 1 - textFade;
         const stmtOpacity = easeOutCubic(stmtIn) * (1 - textFade);
         const movementOpacity = easeOutCubic(movementIn) * (1 - easeOutCubic(movementOut));
-        const movementReveal = easeOutCubic(clamp((timeline - 3.04) / 0.34, 0, 1));
+        const movementReveal = easeOutCubic(clamp((timeline - 2.02) / 0.88, 0, 1));
         const movementExit = easeOutCubic(movementOut);
         const needsOpacity = needsIn > 0 ? easeOutCubic(needsIn) : 0;
-        const needsReveal = easeOutCubic(clamp((timeline - 4.12) / 0.42, 0, 1));
+        const needsReveal = easeOutCubic(clamp((timeline - 4.26) / 0.42, 0, 1));
+        const movementTextIn = easeOutCubic(clamp((timeline - 2.1) / 0.82, 0, 1));
         const textStageVisible = timeline < 3.02;
         const leadVisible = textStageVisible;
-        const stmtVisible = textStageVisible && timeline >= 0.62;
-        const movementVisible = timeline >= 2.96 && timeline < 4.16;
-        const needsVisible = timeline >= 4.12;
+        const stmtVisible = textStageVisible && timeline >= 0.54;
+        const movementVisible = timeline >= 1.98 && timeline < 4.2;
+        const needsVisible = timeline >= 4.26;
 
         introCircle.style.opacity = Math.max(0, Math.min(1, circleAppear * (1 - circleFade) * 1)).toFixed(3);
         introCircle.style.transform =
@@ -398,6 +400,9 @@ document.addEventListener("DOMContentLoaded", () => {
         visionTitle.style.letterSpacing = `${lerp(0.42, 0.02, movementReveal).toFixed(3)}em`;
         visionTitle.style.filter = `blur(${lerp(14, 0, movementReveal).toFixed(2)}px)`;
         visionTitle.style.textShadow = `0 0 ${lerp(36, 6, movementReveal).toFixed(1)}px rgba(255, 255, 255, ${lerp(0.28, 0.08, movementReveal).toFixed(3)})`;
+        visionTxt.style.opacity = (movementDisplayOpacity * movementTextIn).toFixed(3);
+        visionTxt.style.transform = `translateY(${lerp(22, 0, movementTextIn).toFixed(2)}px)`;
+        visionTxt.style.filter = `blur(${lerp(16, 0, movementTextIn).toFixed(2)}px)`;
 
         const visibleNeedsOpacity = needsVisible && movementDisplayOpacity <= 0.005 ? needsOpacity : 0;
 
@@ -428,6 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lead.style.color = "var(--text_main)";
         stmt.style.color = "var(--text_main)";
         visionTitle.style.color = "var(--text_main)";
+        visionTxt.style.color = "var(--text_sub)";
         needsTxt.style.color = "var(--text_main)";
 
         if (progressBar) {
@@ -507,11 +513,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     const solutionSection = document.getElementById("solutionSection");
+    const solutionInner = solutionSection?.querySelector(".solution_inner");
     const dragArea = solutionSection?.querySelector(".container");
     const solutionList = solutionSection?.querySelector(".solution_list");
     const solutionProgress = solutionSection?.querySelector(".con");
 
-    if (!solutionSection || !solutionList || !dragArea) {
+    if (!solutionSection || !solutionInner || !solutionList || !dragArea) {
         return;
     }
 
@@ -548,8 +555,14 @@ document.addEventListener("DOMContentLoaded", () => {
         lastTwo: 0,
         dragging: false,
         sideOffset: 0,
-        maxOffset: 0
+        maxOffset: 0,
+        mode: "mobile",
+        desktopTrigger: null,
+        desktopOffsets: []
     };
+
+    const DESKTOP_BREAKPOINT = 901;
+    const SOLUTION_DESKTOP_HOLD = 0.16;
 
     function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
@@ -572,8 +585,39 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const scale = state.maxOffset > 0 ? state.lastTwo / state.maxOffset : 0;
+        const currentOffset = state.mode === "desktop" ? state.lastOne : state.lastTwo;
+        const scale = state.maxOffset > 0 ? currentOffset / state.maxOffset : 0;
         solutionProgress.style.setProperty("--solution-progress-scale", scale.toFixed(4));
+
+        if (state.mode === "desktop") {
+            const segmentCount = Math.max(slides.length - 1, 1);
+            const segmentProgress = scale * segmentCount;
+            let leftLine = 0;
+            let rightLine = 1;
+
+            if (slides.length <= 2) {
+                leftLine = clamp(scale, 0, 1);
+                rightLine = clamp(1 - scale, 0, 1);
+            } else if (segmentProgress <= 1) {
+                leftLine = clamp(0.06 + (segmentProgress * 0.94), 0, 1);
+                rightLine = 1;
+            } else if (segmentProgress < segmentCount - 1) {
+                leftLine = 1;
+                rightLine = 1;
+            } else {
+                leftLine = 1;
+                rightLine = clamp(segmentCount - segmentProgress, 0, 1);
+            }
+
+            solutionProgress.style.setProperty("--solution-dot-ratio", "0.5");
+            solutionProgress.style.setProperty("--solution-left-line", leftLine.toFixed(4));
+            solutionProgress.style.setProperty("--solution-right-line", rightLine.toFixed(4));
+            return;
+        }
+
+        solutionProgress.style.setProperty("--solution-dot-ratio", "0");
+        solutionProgress.style.setProperty("--solution-left-line", "0");
+        solutionProgress.style.setProperty("--solution-right-line", "1");
     }
 
     function updateSlideFocus() {
@@ -596,8 +640,21 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateBounds() {
         const viewportWidth = dragArea.clientWidth;
         const firstSlideWidth = slides[0]?.getBoundingClientRect().width || viewportWidth;
-        state.sideOffset = Math.max((viewportWidth - firstSlideWidth) / 2, 0);
-        state.maxOffset = Math.max(solutionList.scrollWidth - firstSlideWidth, 0);
+
+        if (state.mode === "desktop") {
+            state.sideOffset = 0;
+            state.desktopOffsets = slides.map((slide) => {
+                const slideWidth = slide.getBoundingClientRect().width || viewportWidth;
+                const centeredOffset = slide.offsetLeft - Math.max((viewportWidth - slideWidth) / 2, 0);
+                return clamp(centeredOffset, 0, Math.max(solutionList.scrollWidth - viewportWidth, 0));
+            });
+            state.maxOffset = state.desktopOffsets[state.desktopOffsets.length - 1] || 0;
+        } else {
+            state.sideOffset = Math.max((viewportWidth - firstSlideWidth) / 2, 0);
+            state.maxOffset = Math.max(solutionList.scrollWidth - firstSlideWidth, 0);
+            state.desktopOffsets = [];
+        }
+
         state.current = clamp(state.current, 0, state.maxOffset);
         state.lastOne = clamp(state.lastOne, 0, state.maxOffset);
         state.lastTwo = clamp(state.lastTwo, 0, state.maxOffset);
@@ -632,6 +689,17 @@ document.addEventListener("DOMContentLoaded", () => {
         state.lastOne = lerp(state.lastOne, state.current, 0.085);
         state.lastTwo = lerp(state.lastTwo, state.current, 0.08);
 
+        if (state.mode === "desktop") {
+            solutionList.style.transform =
+                `translate3d(${(-state.lastOne).toFixed(2)}px, 0, 0)`;
+            textTrack.style.transform =
+                `translate3d(${(-state.lastOne).toFixed(2)}px, 0, 0)`;
+            updateProgress();
+            updateSlideFocus();
+            window.requestAnimationFrame(render);
+            return;
+        }
+
         const diff = state.current - state.lastOne;
         const acc = diff / Math.max(dragArea.clientWidth, 1);
         const bounce = 1 - Math.abs(acc * 0.25);
@@ -650,6 +718,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function onPointerDown(event) {
+        if (state.mode !== "mobile") {
+            return;
+        }
+
         state.dragging = true;
         state.on = getClientX(event);
         state.off = state.current;
@@ -658,7 +730,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function onPointerMove(event) {
-        if (!state.dragging) {
+        if (!state.dragging || state.mode !== "mobile") {
             return;
         }
 
@@ -668,13 +740,81 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function stopDragging() {
-        if (!state.dragging) {
+        if (!state.dragging || state.mode !== "mobile") {
             return;
         }
 
         state.dragging = false;
         solutionList.classList.remove("is_dragging");
         snapToNearestSlide();
+    }
+
+    function destroyDesktopScroll() {
+        if (state.desktopTrigger) {
+            state.desktopTrigger.kill();
+            state.desktopTrigger = null;
+        }
+    }
+
+    function setupDesktopScroll() {
+        if (!window.gsap || !window.ScrollTrigger) {
+            return;
+        }
+
+        window.gsap.registerPlugin(window.ScrollTrigger);
+        destroyDesktopScroll();
+
+        state.desktopTrigger = window.ScrollTrigger.create({
+            trigger: solutionSection,
+            start: "top top",
+            end: () => `+=${window.innerHeight * Math.max(slides.length + 0.55, 2.35)}`,
+            pin: solutionInner,
+            pinSpacing: true,
+            scrub: 1,
+            invalidateOnRefresh: true,
+            onRefresh: (self) => {
+                const progress = clamp(self.progress / (1 - SOLUTION_DESKTOP_HOLD), 0, 1);
+                state.current = progress * state.maxOffset;
+            },
+            onUpdate: (self) => {
+                const progress = clamp(self.progress / (1 - SOLUTION_DESKTOP_HOLD), 0, 1);
+                state.current = progress * state.maxOffset;
+            }
+        });
+    }
+
+    function applySolutionMode() {
+        const nextMode = window.innerWidth >= DESKTOP_BREAKPOINT ? "desktop" : "mobile";
+
+        if (nextMode === state.mode && !(nextMode === "desktop" && !state.desktopTrigger)) {
+            updateBounds();
+
+            if (state.mode === "desktop" && window.ScrollTrigger) {
+                window.ScrollTrigger.refresh();
+            }
+
+            return;
+        }
+
+        state.mode = nextMode;
+        state.dragging = false;
+        solutionList.classList.remove("is_dragging");
+        solutionSection.classList.toggle("is_desktop_scroll", state.mode === "desktop");
+        solutionSection.classList.toggle("is_mobile_drag", state.mode === "mobile");
+
+        if (state.mode === "desktop") {
+            state.lastOne = state.current;
+            state.lastTwo = state.current;
+            updateBounds();
+            setupDesktopScroll();
+            return;
+        }
+
+        destroyDesktopScroll();
+        state.current = clamp(state.current, 0, state.maxOffset);
+        state.lastOne = state.current;
+        state.lastTwo = state.current;
+        updateBounds();
     }
 
     dragArea.addEventListener("mousedown", onPointerDown);
@@ -684,13 +824,17 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
     });
     dragArea.addEventListener("touchstart", (event) => {
+        if (state.mode !== "mobile") {
+            return;
+        }
+
         state.dragging = true;
         state.on = getClientX(event);
         state.off = state.current;
         solutionList.classList.add("is_dragging");
     }, { passive: true });
     window.addEventListener("touchmove", (event) => {
-        if (!state.dragging) {
+        if (!state.dragging || state.mode !== "mobile") {
             return;
         }
 
@@ -701,9 +845,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("touchend", stopDragging);
     window.addEventListener("mouseleave", stopDragging);
 
-    window.addEventListener("resize", updateBounds);
+    window.addEventListener("resize", applySolutionMode);
 
-    updateBounds();
+    applySolutionMode();
     render();
 });
 
@@ -720,6 +864,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const partnerHeading = partnerSection.querySelector(".partner_heading");
     const partnerCardsContainer = partnerSection.querySelector(".partner_cards_container");
     const partnerScrollDownButton = document.getElementById("partnerScrollDownButton");
+    const PARTNER_HOLD_PROGRESS = 0.18;
 
     const smoothStep = (progress) => progress * progress * (3 - (2 * progress));
     const setPartnerCardsToInitialState = () => {
@@ -779,8 +924,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const applyPartnerScene = (progress) => {
-        const clampedProgress = window.gsap.utils.clamp(0, 1, progress);
-        const headingProgress = window.gsap.utils.clamp(0, 1, (clampedProgress - 0.58) / 0.18);
+        const normalizedProgress = window.gsap.utils.clamp(0, 1, progress / (1 - PARTNER_HOLD_PROGRESS));
+        const clampedProgress = window.gsap.utils.clamp(0, 1, normalizedProgress);
+        const headingProgress = window.gsap.utils.clamp(0, 1, (clampedProgress - 0.5) / 0.22);
         const headingEase = smoothStep(headingProgress);
         const shouldShowPartnerScrollButton = clampedProgress > 0.02 && clampedProgress < 0.68;
 
@@ -790,14 +936,14 @@ document.addEventListener("DOMContentLoaded", () => {
             window.gsap.set(partnerHeading, {
                 opacity: headingEase,
                 xPercent: -50,
-                y: window.gsap.utils.interpolate(110, 0, headingEase),
+                y: window.gsap.utils.interpolate(180, 0, headingEase),
             });
         }
 
         cards.forEach((card, index) => {
             const delay = index * 0.42;
-            const cardStart = 0.34 + (delay * 0.03);
-            const cardDuration = 0.5 - (delay * 0.03);
+            const cardStart = 0.22 + (delay * 0.03);
+            const cardDuration = 0.74 - (delay * 0.045);
             const cardProgress = window.gsap.utils.clamp(
                 0,
                 1,
@@ -809,49 +955,57 @@ document.addEventListener("DOMContentLoaded", () => {
             const isInteractive = cardProgress >= 0.98;
 
             let y;
-            if (cardProgress < 0.72) {
-                const normalizedProgress = cardProgress / 0.72;
+            if (cardProgress < 0.62) {
+                const normalizedProgress = cardProgress / 0.62;
                 const eased = smoothStep(normalizedProgress);
-                y = window.gsap.utils.interpolate("-220px", "28px", eased);
+                y = window.gsap.utils.interpolate("0px", "260px", eased);
+            } else if (cardProgress < 0.86) {
+                const normalizedProgress = (cardProgress - 0.62) / 0.24;
+                const eased = smoothStep(normalizedProgress);
+                y = window.gsap.utils.interpolate("260px", "72px", eased);
             } else if (cardProgress < 1) {
-                const normalizedProgress = (cardProgress - 0.72) / 0.28;
+                const normalizedProgress = (cardProgress - 0.86) / 0.14;
                 const eased = smoothStep(normalizedProgress);
-                y = window.gsap.utils.interpolate("28px", "0px", eased);
+                y = window.gsap.utils.interpolate("72px", "0px", eased);
             } else {
                 y = "0px";
             }
 
             let scale;
-            if (cardProgress < 0.72) {
-                const normalizedProgress = cardProgress / 0.72;
+            if (cardProgress < 0.46) {
+                const normalizedProgress = cardProgress / 0.46;
                 const eased = smoothStep(normalizedProgress);
-                scale = window.gsap.utils.interpolate(0.62, 0.9, eased);
+                scale = window.gsap.utils.interpolate(0.82, 0.72, eased);
+            } else if (cardProgress < 0.72) {
+                const normalizedProgress = (cardProgress - 0.46) / 0.26;
+                const eased = smoothStep(normalizedProgress);
+                scale = window.gsap.utils.interpolate(0.72, 0.94, eased);
             } else if (cardProgress < 1) {
                 const normalizedProgress = (cardProgress - 0.72) / 0.28;
                 const eased = smoothStep(normalizedProgress);
-                scale = window.gsap.utils.interpolate(0.9, 1, eased);
+                scale = window.gsap.utils.interpolate(1.02, 1.14, eased);
             } else {
-                scale = 1;
+                scale = 1.14;
             }
 
             let x;
             let rotate;
             let rotationY;
 
-            if (cardProgress < 0.9) {
-                x = index === 0 ? "72%" : index === 1 ? "0%" : "-72%";
-                rotate = index === 0 ? -5 : index === 1 ? 0 : 5;
+            if (cardProgress < 0.62) {
+                x = index === 0 ? "0%" : index === 1 ? "0%" : "0%";
+                rotate = 0;
                 rotationY = 0;
             } else if (cardProgress < 1) {
-                const normalizedProgress = (cardProgress - 0.9) / 0.1;
+                const normalizedProgress = (cardProgress - 0.62) / 0.38;
                 const eased = smoothStep(normalizedProgress);
                 x = window.gsap.utils.interpolate(
-                    index === 0 ? "72%" : index === 1 ? "0%" : "-72%",
+                    "0%",
                     "0%",
                     eased
                 );
                 rotate = window.gsap.utils.interpolate(
-                    index === 0 ? -5 : index === 1 ? 0 : 5,
+                    0,
                     0,
                     eased
                 );
@@ -903,7 +1057,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.ScrollTrigger.create({
         trigger: partnerSection,
         start: "top top",
-        end: () => `+=${window.innerHeight * 4.2}`,
+        end: () => `+=${window.innerHeight * 5.1}`,
         pin: partnerSection.querySelector(".partner_sticky"),
         pinSpacing: true,
         scrub: 1,

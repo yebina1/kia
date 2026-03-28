@@ -7,6 +7,8 @@
     --header_height: 80px;
     --scene_count: 5;
     --scene_scroll: 300vh;
+    --solution-track-base: rgba(251, 246, 239, 0.34);
+    --solution-track-active: #c7ffee;
 }
 
 html {
@@ -38,6 +40,11 @@ svg {
 main {
     position: relative;
     overflow: visible;
+}
+
+h2 {
+    font-size: 64px !important;
+    text-align: center;
 }
 
 /* ==============================
@@ -315,7 +322,7 @@ main {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: clamp(320px, 42vw, 760px);
+    width: clamp(420px, 50vw, 920px);
     aspect-ratio: 1;
     border-radius: 50%;
     transform: translate(-50%, -50%) scale(0.2);
@@ -433,6 +440,9 @@ main {
     line-height: 1.5;
     text-align: center;
     color: var(--text_sub);
+    opacity: 0;
+    transform: translateY(18px);
+    will-change: opacity, transform, filter;
 }
 
 .needs_stage {
@@ -562,6 +572,8 @@ main {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    align-items: center;
+    text-align: center;
 }
 
 .solution_title {
@@ -672,6 +684,146 @@ main {
     backface-visibility: hidden;
 }
 
+.solution_section.is_desktop_scroll {
+    padding: 0;
+}
+
+.solution_section.is_desktop_scroll .solution_inner {
+    width: min(1600px, calc(100% - 80px));
+    min-height: 100vh;
+    padding: 88px 0 72px;
+}
+
+.solution_section.is_desktop_scroll .solution_tit {
+    align-items: center;
+    gap: 18px;
+    text-align: center;
+}
+
+.solution_section.is_desktop_scroll .solution_sub {
+    max-width: 920px;
+}
+
+.solution_section.is_desktop_scroll .container {
+    width: 100%;
+    height: min(760px, calc(100vh - 220px));
+    padding-top: 0;
+    margin: 54px auto 0;
+    left: auto;
+    perspective: none;
+    transform: none;
+    overflow: visible;
+}
+
+.solution_section.is_desktop_scroll .container::before {
+    content: "";
+    top: 74px;
+    left: 50%;
+    width: 100vw;
+    height: 2px;
+    background: transparent;
+    transform: translate(-50%, -50%);
+}
+
+.solution_section.is_desktop_scroll .container::after {
+    content: "";
+    top: 74px;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--solution-track-active);
+    box-shadow: 0 0 0 8px rgba(199, 255, 238, 0.12);
+    transform: translate(-50%, -50%);
+    z-index: 4;
+}
+
+.solution_section.is_desktop_scroll .con {
+    top: 74px;
+    left: 50%;
+    width: 100vw;
+    height: 2px;
+    background: transparent;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.solution_section.is_desktop_scroll .con::before,
+.solution_section.is_desktop_scroll .con::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    height: 100%;
+}
+
+.solution_section.is_desktop_scroll .con::before {
+    left: 0;
+    width: 50%;
+    background: var(--solution-track-active);
+    transform: scaleX(var(--solution-left-line, 0));
+    transform-origin: right center;
+}
+
+.solution_section.is_desktop_scroll .con::after {
+    right: 0;
+    width: 50%;
+    background: var(--solution-track-base);
+    transform: scaleX(var(--solution-right-line, 1));
+    transform-origin: left center;
+}
+
+.solution_section.is_desktop_scroll .solution_list {
+    top: 156px;
+    left: 0;
+    gap: 88px;
+    height: calc(100% - 156px);
+    cursor: default;
+    touch-action: none;
+    transform-origin: left center;
+}
+
+.solution_section.is_desktop_scroll .solution_list>li {
+    width: min(1480px, calc(100vw - 120px));
+    height: 100%;
+    grid-template-columns: minmax(0, 820px) minmax(320px, 1fr);
+    align-items: center;
+    column-gap: clamp(48px, 5vw, 96px);
+    opacity: calc(0.32 + (var(--slide-focus, 0) * 0.68));
+    filter: brightness(calc(0.52 + (var(--slide-focus, 0) * 0.48)));
+    transition: opacity 0.24s ease, filter 0.24s ease;
+}
+
+.solution_section.is_desktop_scroll .solution_list>li>img {
+    width: 100%;
+    max-width: none;
+    height: min(460px, 58vh);
+}
+
+.solution_section.is_desktop_scroll .solution_media_list .tex_box {
+    visibility: visible;
+    opacity: 1;
+}
+
+.solution_section.is_desktop_scroll .solution_text_list {
+    display: none;
+}
+
+.solution_section.is_desktop_scroll .tex_box {
+    max-width: 100%;
+    align-self: center;
+}
+
+.solution_section.is_desktop_scroll .tex_box strong {
+    margin-bottom: 28px;
+    font-size: clamp(34px, 2.4vw, 54px);
+    line-height: 1.08;
+}
+
+.solution_section.is_desktop_scroll .tex_box p {
+    font-size: clamp(23px, 1.85vw, 38px);
+    line-height: 1.45;
+}
+
 .solution_list>li>img {
     display: block;
     width: 100%;
@@ -760,54 +912,58 @@ main {
 
 .partner_heading {
     position: absolute;
-    top: 250px;
+    top: 240px;
     left: 50%;
     z-index: 6;
     font-family: "Cormorant Garamond", serif;
-    font-size: clamp(42px, 4.2vw, 64px);
     font-weight: 500;
-    line-height: 1.08;
+    line-height: 0.92;
     text-align: center;
     color: #fbf6ef;
     opacity: 0;
-    transform: translate(-50%, 110px);
+    transform: translate(-50%, 160px);
     will-change: transform, opacity;
     white-space: nowrap;
+    pointer-events: none;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
 
 .partner_cards {
     height: calc(100vh - 160px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    margin-top: 132px;
+    margin-top: 410px;
 }
 
 .partner_cards_container {
-    width: min(90%, 1440px);
+    width: min(1120px, 100%);
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    gap: clamp(28px, 3vw, 56px);
+    gap: 80px;
     transition: filter 0.35s ease, opacity 0.35s ease;
+    position: relative;
+    z-index: 4;
 }
 
 .partner_card {
     flex: 1;
-    max-width: 430px;
+    max-width: 320px;
     display: flex;
     flex-direction: column;
     gap: 0;
     opacity: 1;
-    transform: translate3d(0, -220px, 0) scale(0.62);
+    transform: translate3d(0, 0, 0) scale(1);
     will-change: transform, opacity;
     transition: filter 0.35s ease, opacity 0.35s ease;
+    position: relative;
 }
 
 .partner_card_wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 5 / 7;
+    aspect-ratio: 0.72 / 1;
     perspective: 1400px;
     cursor: pointer;
 }
@@ -822,22 +978,6 @@ main {
     will-change: transform;
 }
 
-.partner_card.is_floating#partnerCard1 .partner_card_wrapper {
-    animation-delay: 0s;
-}
-
-.partner_card.is_floating#partnerCard2 .partner_card_wrapper {
-    animation-delay: 0.25s;
-}
-
-.partner_card.is_floating#partnerCard3 .partner_card_wrapper {
-    animation-delay: 0.5s;
-}
-
-.partner_card.is_floating .partner_card_wrapper {
-    animation: partnerFloating 2s infinite ease-in-out;
-}
-
 .partner_card:not(.is_interactive) .partner_card_wrapper {
     pointer-events: none;
     cursor: default;
@@ -845,20 +985,6 @@ main {
 
 .partner_card_wrapper.is_hovered:not(.is_open) {
     animation-play-state: paused;
-}
-
-@keyframes partnerFloating {
-    0% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-5%);
-    }
-
-    100% {
-        transform: translateY(0);
-    }
 }
 
 .partner_flip_inner {
@@ -876,6 +1002,7 @@ main {
     border-radius: 22px;
     backface-visibility: hidden;
     background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow:
         rgba(0, 0, 0, 0.44) 0 30px 60px 0,
         inset rgba(255, 255, 255, 0.08) 0 0 0 1px;
@@ -954,7 +1081,7 @@ main {
 
 .partner_copy strong,
 .partner_copy p {
-    font-size: clamp(22px, 1.8vw, 34px);
+    font-size: 24px;
     font-weight: 400;
     line-height: 1.28;
     color: #fbf6ef;
@@ -1103,8 +1230,8 @@ main {
     width: 420px;
     height: 130px;
     padding: 0 20px;
-    color: rgba(255, 255, 255, 0.88);
-    background: #0a0f13;
+    color: #ffffff;
+    background: transparent;
     border-radius: 18px;
     box-shadow: none;
     transition: background 0.25s ease, color 0.25s ease, opacity 0.25s ease;
@@ -1112,8 +1239,8 @@ main {
 
 .awards_item img {
     display: block;
-    width: 150px;
-    height: 92px;
+    width: 132px;
+    height: 82px;
     object-fit: contain;
     flex: 0 0 auto;
     filter: grayscale(1) brightness(1.08);
@@ -1147,6 +1274,11 @@ main {
 .awards_blur div {
     position: absolute;
     inset: 0;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.05) 18%,
+            rgba(255, 255, 255, 0.02) 36%,
+            rgba(255, 255, 255, 0) 62%);
     mask: linear-gradient(90deg,
             transparent calc(var(--index) * 12%),
             #000 calc((var(--index) + 1) * 12%),
@@ -1157,7 +1289,7 @@ main {
             #000 calc((var(--index) + 1) * 12%),
             #000 calc((var(--index) + 2) * 12%),
             transparent calc((var(--index) + 3) * 12%));
-    backdrop-filter: blur(calc((var(--index) + 1) * 2.5px));
+    backdrop-filter: blur(calc((var(--index) + 1) * 2.2px));
 }
 
 .awards_viewport:has(.awards_item:hover) .awards_marquee {
@@ -1171,7 +1303,7 @@ main {
 .awards_track .awards_item:hover {
     opacity: 1;
     color: #ffffff;
-    background: #111824;
+    background: transparent;
 }
 
 .awards_track .awards_item:hover img {
