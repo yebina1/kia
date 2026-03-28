@@ -45,12 +45,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const heroSummaryPrice = document.getElementById("heroSummaryPrice");
   const heroSummaryLease = document.getElementById("heroSummaryLease");
   const heroSummaryImage = document.getElementById("heroSummaryImage");
+  const requestQuoteButton = document.getElementById("requestQuoteButton");
+  const heroQuotePanel = document.getElementById("heroQuotePanel");
+  const quoteSelectedModel = document.getElementById("quoteSelectedModel");
   const summaryRowTrim = document.getElementById("summaryRowTrim");
   const summaryRowTrimPrice = document.getElementById("summaryRowTrimPrice");
   const summaryRowExterior = document.getElementById("summaryRowExterior");
   const summaryRowExteriorPrice = document.getElementById("summaryRowExteriorPrice");
   const summaryRowInterior = document.getElementById("summaryRowInterior");
   const summaryRowInteriorPrice = document.getElementById("summaryRowInteriorPrice");
+  const summaryRowPlan = document.getElementById("summaryRowPlan");
+  const summaryRowPlanPrice = document.getElementById("summaryRowPlanPrice");
   const heroSummarySelectedItems = document.getElementById("heroSummarySelectedItems");
   const summaryBuildTotal = document.getElementById("summaryBuildTotal");
   const heroExteriorName = document.getElementById("heroExteriorName");
@@ -466,8 +471,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return parseCurrencyValue(selectedExterior?.dataset.price || 0);
   }
 
-  function getAdjustedPriceLabel(basePrice) {
-    const adjustedPrice = parseCurrencyValue(basePrice) + getSelectedExteriorAdjustment();
+  function getSelectedPackageTotal() {
+    return getSelectedPackageItems().reduce((sum, item) => sum + item.price, 0);
+  }
+
+  function getSelectedAccessoryTotal() {
+    return getSelectedAccessoryItems().reduce((sum, item) => sum + item.price, 0);
+  }
+
+  function getAdjustedPriceLabel(basePrice, options = {}) {
+    const { includePackages = false, includeAccessories = false } = options;
+    const adjustedPrice =
+      parseCurrencyValue(basePrice) +
+      getSelectedExteriorAdjustment() +
+      (includePackages ? getSelectedPackageTotal() : 0) +
+      (includeAccessories ? getSelectedAccessoryTotal() : 0);
+
     return `${formatCurrencyValue(adjustedPrice)} Starting MSRP*`;
   }
 
@@ -495,18 +514,86 @@ document.addEventListener("DOMContentLoaded", () => {
     return value > 0 ? formatCurrencyValue(value) : "$0";
   }
 
+  function formatSummaryLabel(label, iconClass, options = {}) {
+    const { actionStep = null, actionType = null, actionValue = null, actionLabel = "Edit" } =
+      options;
+    let iconMarkup = `<i class="${escapeHtml(iconClass)}" aria-hidden="true"></i>`;
+
+    if (actionStep !== null) {
+      iconMarkup = `<button type="button" class="hero_summary_icon_btn" data-summary-step="${escapeHtml(
+        actionStep
+      )}" aria-label="${escapeHtml(actionLabel)} ${escapeHtml(label)}"><i class="${escapeHtml(
+        iconClass
+      )}" aria-hidden="true"></i></button>`;
+    } else if (actionType !== null && actionValue !== null) {
+      iconMarkup = `<button type="button" class="hero_summary_icon_btn" data-summary-remove-type="${escapeHtml(
+        actionType
+      )}" data-summary-remove-value="${escapeHtml(
+        actionValue
+      )}" aria-label="${escapeHtml(actionLabel)} ${escapeHtml(label)}"><i class="${escapeHtml(
+        iconClass
+      )}" aria-hidden="true"></i></button>`;
+    }
+
+    return `<span class="hero_summary_row_label_content">${iconMarkup}<span>${escapeHtml(
+      label
+    )}</span></span>`;
+  }
+
   function getSelectedAccessoryItems() {
     return Array.from(
-      document.querySelectorAll("#heroAccessoryCards .hero_accessory_card.is-selected")
-    ).map((card) => {
+      document.querySelectorAll("#heroAccessoryCards .hero_accessory_card")
+    )
+      .map((card, index) => ({ card, index }))
+      .filter(({ card }) => card.classList.contains("is-selected"))
+      .map(({ card, index }) => {
       const name = card.querySelector(".hero_accessory_card_top strong")?.textContent?.trim() || "";
       const priceText = card.querySelector(".hero_accessory_card_top span")?.textContent?.trim() || "+$0";
 
       return {
+        type: "accessory",
+        index,
         name,
         price: parseCurrencyValue(priceText)
       };
     });
+  }
+
+  function getSelectedPackageItems() {
+    const packages = getCurrentPackages(getCurrentCar()?.title || "EV9");
+
+    return Array.from(selectedPackages)
+      .map((index) => packages[index])
+      .filter(Boolean)
+      .map((packageItem, packagePosition) => ({
+        type: "package",
+        index: Array.from(selectedPackages)[packagePosition],
+        name: packageItem.name,
+        price: parseCurrencyValue(packageItem.price)
+      }));
+  }
+
+  function getSelectedPlanItem() {
+    const selectedCard =
+      document.querySelector("#heroPlanCards .hero_plan_card.is-selected") ||
+      document.querySelector("#heroPlanCards .hero_plan_card");
+
+    if (!selectedCard) {
+      return {
+        name: "Lite",
+        price: 0
+      };
+    }
+
+    const name =
+      selectedCard.querySelector(".hero_plan_card_top strong")?.textContent?.trim() || "Lite";
+    const priceText =
+      selectedCard.querySelector(".hero_plan_card_top span")?.textContent?.trim() || "$0";
+
+    return {
+      name,
+      price: parseCurrencyValue(priceText)
+    };
   }
 
   function updateSummaryPanel(basePriceText) {
@@ -517,6 +604,8 @@ document.addEventListener("DOMContentLoaded", () => {
       !summaryRowExteriorPrice ||
       !summaryRowInterior ||
       !summaryRowInteriorPrice ||
+      !summaryRowPlan ||
+      !summaryRowPlanPrice ||
       !heroSummarySelectedItems ||
       !summaryBuildTotal
     ) {
@@ -525,27 +614,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const selectedExterior = getSelectedExteriorSwatch();
     const selectedInterior = getSelectedInteriorSwatch();
+    const packageItems = getSelectedPackageItems();
     const accessoryItems = getSelectedAccessoryItems();
+    const selectedPlan = getSelectedPlanItem();
     const basePrice = parseCurrencyValue(basePriceText);
     const exteriorPrice = parseCurrencyValue(selectedExterior?.dataset.price || 0);
     const interiorPrice = 0;
     const destinationFee = 1645;
-    const accessoryTotal = accessoryItems.reduce((sum, item) => sum + item.price, 0);
-    const total = basePrice + exteriorPrice + interiorPrice + accessoryTotal + destinationFee;
+    const packageTotal = getSelectedPackageTotal();
+    const accessoryTotal = getSelectedAccessoryTotal();
+    const total =
+      basePrice + exteriorPrice + interiorPrice + packageTotal + accessoryTotal + destinationFee;
 
-    summaryRowTrim.textContent = heroSummaryTrim?.textContent || "Land AWD";
+    summaryRowTrim.innerHTML = formatSummaryLabel(
+      heroSummaryTrim?.textContent || "Land AWD",
+      "bx bx-edit-alt",
+      { actionStep: "1" }
+    );
     summaryRowTrimPrice.textContent = formatCurrencyValue(basePrice);
-    summaryRowExterior.textContent = selectedExterior?.dataset.name || "Panthera Metal";
+    summaryRowExterior.innerHTML = formatSummaryLabel(
+      selectedExterior?.dataset.name || "Panthera Metal",
+      "bx bx-edit-alt",
+      { actionStep: "2" }
+    );
     summaryRowExteriorPrice.textContent = formatSummaryLinePrice(exteriorPrice);
-    summaryRowInterior.textContent =
-      selectedInterior?.dataset.name || "Black & Dark Gray Quilted Stripes SynTex Seat Trim";
+    summaryRowInterior.innerHTML = formatSummaryLabel(
+      selectedInterior?.dataset.name || "Black & Dark Gray Quilted Stripes SynTex Seat Trim",
+      "bx bx-edit-alt",
+      { actionStep: "2" }
+    );
     summaryRowInteriorPrice.textContent = formatSummaryLinePrice(interiorPrice);
+    summaryRowPlan.innerHTML = formatSummaryLabel(selectedPlan.name, "bx bx-edit-alt", {
+      actionStep: "5"
+    });
+    summaryRowPlanPrice.textContent = formatSummaryLinePrice(selectedPlan.price);
 
-    heroSummarySelectedItems.innerHTML = accessoryItems
+    heroSummarySelectedItems.innerHTML = [...packageItems, ...accessoryItems]
       .map(
         (item) => `
           <div class="hero_summary_row">
-            <span class="hero_summary_row_label">${escapeHtml(item.name)}</span>
+            <span class="hero_summary_row_label">${formatSummaryLabel(item.name, "bx bx-x", {
+              actionType: item.type,
+              actionValue: String(item.index),
+              actionLabel: "Remove"
+            })}</span>
             <span class="hero_summary_row_price">${formatCurrencyValue(item.price)}</span>
           </div>
         `
@@ -647,6 +759,29 @@ document.addEventListener("DOMContentLoaded", () => {
     return packageStageData[title] || packageStageData.EV9 || [];
   }
 
+  function getCurrentBasePrice() {
+    const currentCar = getCurrentCar();
+    const title = currentCar?.title || "EV9";
+    const trimData = getTrimDataForTitle(title);
+    const trimItems = getCurrentTrimItems(title);
+    const selectedTrim =
+      selectedTrimIndex === null
+        ? trimItems[0] || null
+        : trimItems[selectedTrimIndex] || trimItems[0] || null;
+
+    return selectedTrim?.price || trimData.price;
+  }
+
+  function syncQuoteSelectedModel() {
+    if (!quoteSelectedModel) {
+      return;
+    }
+
+    const modelName = heroSummaryTitle?.textContent?.trim() || getCurrentCar()?.title || "EV9";
+    const trimName = heroSummaryTrim?.textContent?.trim() || "Land AWD";
+    quoteSelectedModel.value = `${modelName} ${trimName}`.trim();
+  }
+
   function applySelectedTrim(title) {
     if (!heroTrimTitle || !heroTrimImage) {
       return;
@@ -697,13 +832,15 @@ document.addEventListener("DOMContentLoaded", () => {
       heroPackageTitle.className = "hero_package_title";
 
       if (titleKey) {
-        heroPackageTitle.classList.add(`hero_title_${titleKey}`);
+      heroPackageTitle.classList.add(`hero_title_${titleKey}`);
       }
 
       heroPackageTrim.textContent = selectedTrim?.name || trimData.grade;
-      heroPackagePrice.innerHTML = formatPriceMarkup(getAdjustedPriceLabel(
-        selectedTrim?.price || trimData.price
-      ));
+      heroPackagePrice.innerHTML = formatPriceMarkup(
+        getAdjustedPriceLabel(selectedTrim?.price || trimData.price, {
+          includePackages: true
+        })
+      );
       heroPackageLease.textContent = selectedTrim?.lease || trimData.lease;
       heroPackageImage.src = selectedTrim?.image || "./img/sub01_build/trim_light.png";
       heroPackageImage.alt = selectedTrim?.alt || title;
@@ -714,13 +851,16 @@ document.addEventListener("DOMContentLoaded", () => {
       heroAccessoryTitle.className = "hero_accessory_title";
 
       if (titleKey) {
-        heroAccessoryTitle.classList.add(`hero_title_${titleKey}`);
+      heroAccessoryTitle.classList.add(`hero_title_${titleKey}`);
       }
 
       heroAccessoryTrim.textContent = selectedTrim?.name || trimData.grade;
-      heroAccessoryPrice.innerHTML = formatPriceMarkup(getAdjustedPriceLabel(
-        selectedTrim?.price || trimData.price
-      ));
+      heroAccessoryPrice.innerHTML = formatPriceMarkup(
+        getAdjustedPriceLabel(selectedTrim?.price || trimData.price, {
+          includePackages: true,
+          includeAccessories: true
+        })
+      );
       heroAccessoryLease.textContent = selectedTrim?.lease || trimData.lease;
       heroAccessoryImage.src = selectedTrim?.image || "./img/sub01_build/trim_light.png";
       heroAccessoryImage.alt = selectedTrim?.alt || title;
@@ -731,13 +871,16 @@ document.addEventListener("DOMContentLoaded", () => {
       heroPlanTitle.className = "hero_plan_title";
 
       if (titleKey) {
-        heroPlanTitle.classList.add(`hero_title_${titleKey}`);
+      heroPlanTitle.classList.add(`hero_title_${titleKey}`);
       }
 
       heroPlanTrim.textContent = selectedTrim?.name || trimData.grade;
-      heroPlanPrice.innerHTML = formatPriceMarkup(getAdjustedPriceLabel(
-        selectedTrim?.price || trimData.price
-      ));
+      heroPlanPrice.innerHTML = formatPriceMarkup(
+        getAdjustedPriceLabel(selectedTrim?.price || trimData.price, {
+          includePackages: true,
+          includeAccessories: true
+        })
+      );
       heroPlanLease.textContent = selectedTrim?.lease || trimData.lease;
       heroPlanImage.src = selectedTrim?.image || "./img/sub01_build/trim_light.png";
       heroPlanImage.alt = selectedTrim?.alt || title;
@@ -748,17 +891,21 @@ document.addEventListener("DOMContentLoaded", () => {
       heroSummaryTitle.className = "hero_summary_title";
 
       if (titleKey) {
-        heroSummaryTitle.classList.add(`hero_title_${titleKey}`);
+      heroSummaryTitle.classList.add(`hero_title_${titleKey}`);
       }
 
       heroSummaryTrim.textContent = selectedTrim?.name || trimData.grade;
-      heroSummaryPrice.innerHTML = formatPriceMarkup(getAdjustedPriceLabel(
-        selectedTrim?.price || trimData.price
-      ));
+      heroSummaryPrice.innerHTML = formatPriceMarkup(
+        getAdjustedPriceLabel(selectedTrim?.price || trimData.price, {
+          includePackages: true,
+          includeAccessories: true
+        })
+      );
       heroSummaryLease.textContent = selectedTrim?.lease || trimData.lease;
       heroSummaryImage.src = selectedTrim?.image || "./img/sub01_build/trim_light.png";
       heroSummaryImage.alt = selectedTrim?.alt || title;
       updateSummaryPanel(selectedTrim?.price || trimData.price);
+      syncQuoteSelectedModel();
     }
 
   }
@@ -851,9 +998,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedExteriorAsset.getAttribute("alt") || heroSummaryImage.alt;
     }
 
-    const currentSummaryPrice =
-      heroSummaryPrice?.textContent || heroColorPrice?.textContent || trimStageData.EV9.price;
-    updateSummaryPanel(currentSummaryPrice);
+    updateSummaryPanel(getCurrentBasePrice());
 
   }
 
@@ -899,7 +1044,7 @@ document.addEventListener("DOMContentLoaded", () => {
     heroPackageCards.innerHTML = packages
       .map(
         (packageItem, index) => `
-          <article class="hero_package_card" data-package-index="${index}">
+          <article class="hero_package_card${selectedPackages.has(index) ? " expanded" : ""}" data-package-index="${index}">
             <div class="hero_package_card_top">
               <div class="hero_package_card_heading">
                 <strong>${escapeHtml(packageItem.name)}</strong>
@@ -916,7 +1061,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   .join("")}
               </ul>
             </div>
-            <button type="button" class="hero_package_more_btn" aria-expanded="false">
+            <button type="button" class="hero_package_more_btn" aria-expanded="${selectedPackages.has(index) ? "true" : "false"}">
               <span class="hero_more_label">More</span>
               <i class="bx bx-chevron-down hero_more_icon" aria-hidden="true"></i>
             </button>
@@ -1027,22 +1172,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const progressTrack = document.querySelector(".hero_progress_track");
+    const bottomSteps = document.getElementById("heroBottomSteps");
     const firstButton = stepButtons[0];
     const lastButton = stepButtons[stepButtons.length - 1];
     const activeButton = stepButtons[currentStep];
 
-    if (!progressTrack || !firstButton || !lastButton || !activeButton) {
+    if (!progressTrack || !bottomSteps || !firstButton || !lastButton || !activeButton) {
       return;
     }
 
-    const trackStart = firstButton.offsetLeft;
-    const trackEnd = lastButton.offsetLeft + lastButton.offsetWidth;
+    const stepsRect = bottomSteps.getBoundingClientRect();
+    const firstButtonRect = firstButton.getBoundingClientRect();
+    const lastButtonRect = lastButton.getBoundingClientRect();
+    const activeButtonRect = activeButton.getBoundingClientRect();
+    const progressThickness = progressTrack.getBoundingClientRect().height || 8;
+    const trackEdgeOffset = Math.max(progressThickness / 2, 4);
+    const fillEdgeOffset = Math.max(progressThickness / 2, 4);
+    const trackStart = firstButtonRect.left - stepsRect.left - trackEdgeOffset;
+    const trackEnd = lastButtonRect.right - stepsRect.left + trackEdgeOffset;
     const trackWidth = Math.max(trackEnd - trackStart, 0);
-    const activeEnd = activeButton.offsetLeft + activeButton.offsetWidth;
-    const fillWidth =
-      currentStep === stepButtons.length - 1
-        ? trackWidth
-        : Math.max(activeEnd - trackStart, 0);
+    const activeEnd = activeButtonRect.right - stepsRect.left + fillEdgeOffset;
+    const fillWidth = Math.max(activeEnd - trackStart, 0);
 
     progressTrack.style.left = `${trackStart}px`;
     progressTrack.style.width = `${trackWidth}px`;
@@ -1289,6 +1439,84 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  document.getElementById("heroSummaryBreakdown")?.addEventListener("click", (event) => {
+    const trigger = event.target.closest(".hero_summary_icon_btn");
+    const targetStep = Number(trigger?.dataset.summaryStep);
+    const removeType = trigger?.dataset.summaryRemoveType;
+    const removeValue = Number(trigger?.dataset.summaryRemoveValue);
+
+    if (!trigger) {
+      return;
+    }
+
+    if (!Number.isNaN(targetStep)) {
+      updateSteps(targetStep);
+      return;
+    }
+
+    if (removeType === "package" && !Number.isNaN(removeValue)) {
+      selectedPackages.delete(removeValue);
+      renderPackageCards(getCurrentCar()?.title || "EV9");
+      applySelectedTrim(getCurrentCar()?.title || "EV9");
+      updateSummaryPanel(getCurrentBasePrice());
+      return;
+    }
+
+    if (removeType === "accessory" && !Number.isNaN(removeValue)) {
+      const accessoryCards = Array.from(
+        document.querySelectorAll("#heroAccessoryCards .hero_accessory_card")
+      );
+      const card = accessoryCards[removeValue];
+
+      if (!card) {
+        return;
+      }
+
+      const addButton = card.querySelector(".hero_accessory_add_btn");
+      const moreButton = card.querySelector(".hero_accessory_more_btn");
+      card.classList.remove("is-selected", "expanded");
+      if (addButton) {
+        addButton.textContent = "Add +";
+      }
+      addButton?.setAttribute("aria-pressed", "false");
+      moreButton?.setAttribute("aria-expanded", "false");
+      applySelectedTrim(getCurrentCar()?.title || "EV9");
+      updateSummaryPanel(getCurrentBasePrice());
+    }
+  });
+
+  requestQuoteButton?.addEventListener("click", () => {
+    if (!heroQuotePanel) {
+      return;
+    }
+
+    syncQuoteSelectedModel();
+    const shouldOpen = heroQuotePanel.hasAttribute("hidden");
+    heroQuotePanel.toggleAttribute("hidden", !shouldOpen);
+    requestQuoteButton.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+  });
+
+  heroQuotePanel?.addEventListener("click", (event) => {
+    const methodButton = event.target.closest(".hero_quote_method_btn");
+    const paymentButton = event.target.closest(".hero_quote_payment_btn");
+
+    if (methodButton) {
+      heroQuotePanel.querySelectorAll(".hero_quote_method_btn").forEach((button) => {
+        const isActive = button === methodButton;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    }
+
+    if (paymentButton) {
+      heroQuotePanel.querySelectorAll(".hero_quote_payment_btn").forEach((button) => {
+        const isActive = button === paymentButton;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    }
+  });
+
   if (startStepButton) {
     startStepButton.addEventListener("click", () => {
       const nextStep =
@@ -1421,6 +1649,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       renderPackageCards(getCurrentCar()?.title || "EV9");
+      applySelectedTrim(getCurrentCar()?.title || "EV9");
+      updateSummaryPanel(getCurrentBasePrice());
       return;
     }
 
@@ -1453,7 +1683,8 @@ document.addEventListener("DOMContentLoaded", () => {
         moreButton.setAttribute("aria-expanded", willSelect ? "true" : "false");
       }
 
-      updateSummaryPanel(heroSummaryPrice?.textContent || trimStageData.EV9.price);
+      applySelectedTrim(getCurrentCar()?.title || "EV9");
+      updateSummaryPanel(getCurrentBasePrice());
 
       return;
     }
@@ -1489,6 +1720,7 @@ document.addEventListener("DOMContentLoaded", () => {
         moreButton.setAttribute("aria-expanded", willSelect ? "true" : "false");
       }
 
+      updateSummaryPanel(getCurrentBasePrice());
       return;
     }
 
@@ -1504,6 +1736,16 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("resize", () => {
     syncProgressPosition();
   });
+
+  window.addEventListener("load", () => {
+    syncProgressPosition();
+  });
+
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(() => {
+      syncProgressPosition();
+    });
+  }
 
   hydrateEv9TrimDataFromHtml();
   setCategory(currentCategory);
