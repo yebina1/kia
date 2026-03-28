@@ -1,1 +1,385 @@
 @charset "utf-8";
+
+html {
+  scroll-behavior: smooth;
+}
+
+.wrap {
+  min-height: 100vh;
+}
+
+header .inner h1 a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: "Outfit", sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kia-white1);
+}
+
+.list_page {
+  padding: 114px 120px 120px;
+}
+
+.list_intro {
+  margin-top: 32px;
+  margin-bottom: 64px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.list_intro h2 {
+  line-height: 1;
+}
+
+.list_intro p {
+  font-size: 18px;
+  font-weight: 500;
+  align-self: flex-end;
+  color: var(--kia-white2);
+}
+
+.list_layout {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.list_sidebar {
+  position: sticky;
+  top: 156px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.filter_nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter_nav button {
+  all: unset;
+  display: block;
+  font-family: "Outfit", sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--kia-white2);
+  cursor: pointer;
+}
+
+.filter_nav button.on {
+  color: var(--kia-white1);
+}
+
+.compare_tray {
+  border: 1px solid rgba(251, 246, 239, 0.16);
+  border-radius: 24px;
+  padding: 28px 24px;
+  background: rgba(12, 17, 21, 0.45);
+}
+
+.compare_tray strong {
+  display: block;
+  margin-bottom: 20px;
+  font-family: "Outfit", sans-serif;
+  font-size: 20px;
+  color: var(--kia-white2);
+}
+
+.compare_tray ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.compare_tray li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 24px;
+  font-family: "Cormorant Garamond", serif;
+  color: var(--kia-white1);
+}
+
+.compare_tray li span,
+.compare_tray li b {
+  color: inherit;
+}
+
+.compare_tray .open_compare {
+  width: 100%;
+  justify-content: center;
+  padding: 12px 16px;
+  font-size: 16px;
+  color: #121212;
+  background: rgba(251, 246, 239, 0.45);
+}
+
+.list_content {
+  overflow: hidden;
+}
+
+.vehicle_group {
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+}
+
+.vehicle_group h3 {
+  display: inline-block;
+  margin-bottom: 24px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(221, 216, 209, 0.8);
+  font-family: "Outfit", sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--kia-white1);
+}
+
+.vehicle_grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.vehicle_card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vehicle_card .thumb {
+  display: block;
+  width: 100%;
+  height: 220px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--kia-white2);
+  position: relative;
+}
+
+.vehicle_card .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.vehicle_card .thumb::before {
+  content: "Add To Compare";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 56px;
+  border-radius: 24px;
+  background: rgba(18, 18, 18, 0.5);
+  color: var(--kia-white1);
+  font-family: "Outfit", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+  pointer-events: none;
+}
+
+.vehicle_card .thumb::after {
+  content: "+";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 50px;
+  height: 50px;
+  border-radius: 555px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Outfit", sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  color: #fff;
+  background: rgba(251, 246, 239, 0.45);
+  transform: translate(-50%, calc(-50% + 34px)) scale(0.88);
+  opacity: 0;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+  pointer-events: none;
+}
+
+.vehicle_card:hover .thumb img {
+  transform: scale(1.04);
+}
+
+.vehicle_card:hover .thumb::before,
+.vehicle_card:hover .thumb::after,
+.vehicle_card .thumb:focus-visible::before,
+.vehicle_card .thumb:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, calc(-50% + 34px)) scale(1);
+}
+
+.vehicle_card:hover .thumb::before,
+.vehicle_card .thumb:focus-visible::before {
+  transform: translateY(0);
+}
+
+.vehicle_card .meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vehicle_card h4 {
+  font-family: "Outfit", sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--kia-white1);
+  line-height: 1;
+}
+
+.vehicle_card p {
+  font-size: 16px;
+  color: var(--kia-white2);
+}
+
+.vehicle_card p b {
+  color: var(--kia-white1);
+  font-weight: 600;
+}
+
+.vehicle_card .actions {
+  display: flex;
+  gap: 10px;
+}
+
+.vehicle_card .actions a {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 999px;
+  font-size: 18px;
+  font-family: "Outfit", sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.vehicle_card .actions .btn_build {
+  background: rgba(251, 246, 239, 0.24);
+  color: var(--kia-white1);
+}
+
+.vehicle_card .actions .btn_detail {
+  background: linear-gradient(
+    90deg,
+    rgba(251, 246, 239, 0.1),
+    rgba(50, 176, 180, 0.2)
+  );
+  color: var(--kia-white1);
+}
+
+.assistant_banner {
+  margin-top: 12px;
+  margin-bottom: 24px;
+  padding: 28px 32px;
+  border-radius: 32px;
+  border: 1px solid rgba(251, 246, 239, 0.14);
+  background: rgba(251, 246, 239, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.assistant_banner .copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.assistant_banner .copy p {
+  font-size: 16px;
+  color: var(--kia-white2);
+}
+
+.assistant_banner .copy h4 {
+  font-family: "Outfit", sans-serif;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 400;
+  color: var(--kia-white1);
+}
+
+.assistant_banner .cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 16px 28px;
+  border-radius: 999px;
+  background: rgba(251, 246, 239, 0.45);
+  color: #121212;
+  font-size: 18px;
+  font-weight: 500;
+  font-family: "Outfit", sans-serif;
+}
+
+.assistant_banner .cta i {
+  color: #121212;
+  font-size: 20px;
+}
+
+footer {
+  margin-top: 40px;
+}
+
+footer .f_logo {
+  font-family: "Outfit", sans-serif;
+  color: var(--kia-white1);
+  font-size: 52px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+footer .f_sns {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+footer .f_sns li a {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(251, 246, 239, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+footer .f_sns li a i {
+  color: var(--kia-white2);
+  font-size: 18px;
+}

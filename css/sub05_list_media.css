@@ -1,1 +1,178 @@
 @charset "utf-8";
+
+@media screen and (max-width: 1440px) {
+  .list_page {
+    padding-inline: 64px;
+  }
+
+  .list_intro h2 {
+    font-size: 52px;
+  }
+
+  .list_layout {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+
+  .vehicle_grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .list_page {
+    padding-top: 130px;
+    padding-inline: 32px;
+  }
+
+  .list_intro {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 40px;
+  }
+
+  .list_intro h2 {
+    font-size: 46px;
+  }
+
+  .list_intro p {
+    align-self: flex-start;
+  }
+
+  .list_layout {
+    grid-template-columns: 1fr;
+  }
+
+  .list_sidebar {
+    position: static;
+    gap: 20px;
+  }
+
+  .filter_nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .filter_nav button {
+    font-size: 18px;
+    padding: 10px 18px;
+    border: 1px solid rgba(251, 246, 239, 0.25);
+    border-radius: 999px;
+  }
+
+  .filter_nav button.on {
+    background: rgba(251, 246, 239, 0.18);
+  }
+
+  .compare_tray {
+    max-width: 420px;
+  }
+
+  .assistant_banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .assistant_banner .copy h4 {
+    font-size: 28px;
+  }
+
+  footer .inner {
+    padding: 72px 32px;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  footer .f_right {
+    width: 100%;
+    gap: 40px;
+  }
+
+  footer .f_right .f_memu {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  footer .f_right .f_memu article {
+    min-width: 220px;
+  }
+
+  footer .f_right .f_copy {
+    text-align: left;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .vehicle_grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vehicle_card .thumb {
+    height: 190px;
+  }
+
+  .vehicle_group h3 {
+    font-size: 28px;
+  }
+
+  .assistant_banner .cta {
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 680px) {
+  .list_page {
+    padding-top: 114px;
+    padding-inline: 20px;
+  }
+
+  .list_intro h2 {
+    font-size: 36px;
+  }
+
+  .list_intro p {
+    font-size: 15px;
+  }
+
+  .vehicle_grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicle_card .thumb {
+    height: 220px;
+  }
+
+  .vehicle_card h4 {
+    font-size: 24px;
+  }
+
+  .assistant_banner {
+    padding: 22px;
+    border-radius: 20px;
+  }
+
+  .assistant_banner .copy h4 {
+    font-size: 22px;
+  }
+
+  .assistant_banner .cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  footer .inner {
+    padding: 56px 20px;
+  }
+
+  footer .f_logo {
+    font-size: 40px;
+  }
+
+  footer .f_left {
+    gap: 36px;
+  }
+
+  footer .f_right .f_memu article strong {
+    font-size: 20px;
+  }
+}
