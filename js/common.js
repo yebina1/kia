@@ -58,6 +58,13 @@ const $familyToggle = document.querySelector('footer .f_fam strong');
 if ($familySite && $familyToggle) {
   $familyToggle.addEventListener('click', (e) => {
     e.preventDefault();
+    e.stopPropagation();
     $familySite.classList.toggle('on');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!$familySite.contains(e.target)) {
+      $familySite.classList.remove('on');
+    }
   });
 }

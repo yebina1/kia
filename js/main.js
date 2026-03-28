@@ -4,7 +4,7 @@ const $vehicles = [
         name: "Sportage",
         backText: "SPORTAGE",
         backHtml: "SPOR-<br>TAGE",
-        backSize: "220px",
+        backSize: "210px",
         backSpacing: "-0.08em",
         backClassName: "is-sportage",
         image: "./img/main/best/sportage.png",
@@ -36,7 +36,7 @@ const $vehicles = [
         name: "Seltos",
         backText: "SELTOS",
         backHtml: "SELTOS",
-        backSize: "320px",
+        backSize: "300px",
         backSpacing: "-0.08em",
         backClassName: "is-seltos",
         image: "./img/main/best/seltos.png",
@@ -52,7 +52,7 @@ const $vehicles = [
         name: "K4",
         backText: "K4",
         backHtml: "K4",
-        backSize: "420px",
+        backSize: "380px",
         backSpacing: "-0.08em",
         backClassName: "is-k4",
         image: "./img/main/best/k4.png",
@@ -68,7 +68,7 @@ const $vehicles = [
         name: "Telluride",
         backText: "TELLURIDE",
         backHtml: "TELLU-<br>RIDE",
-        backSize: "220px",
+        backSize: "210px",
         backSpacing: "-0.1em",
         backClassName: "is-telluride",
         image: "./img/main/best/telluride.png",
@@ -87,23 +87,35 @@ const $backText = document.querySelector(".best_back_text");
 const $backTextGlass = $backText ? $backText.querySelector(".glass") : null;
 const $cards = Array.from(document.querySelectorAll(".best_car_card"));
 const $specValues = document.querySelectorAll(".best_spec_value");
+const $mainVisualSection = document.querySelector(".main_visual");
 const $bestSection = document.querySelector(".best");
+const $ev6Section = document.querySelector(".ev6");
 
 const MOVE_DURATION = 900;
 const TEXT_DELAY = 500;
 const ENTER_DELAY = Math.max(0, TEXT_DELAY - MOVE_DURATION);
 const SLOT_REVEAL_DELAY = 260;
+const CARD_MOVE_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+const CARD_EXIT_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
+const CARD_ENTER_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 let $currentIndex = 0;
 let $isAnimating = false;
 let $delayTimer = null;
 let $hasActivatedSpecCount = false;
-let $isBestCaptured = false;
-let $bestCaptureUntil = 0;
+let $isBestSnapping = false;
+let $bestSnapLockedUntil = 0;
+let $bestSnapReleaseTimer = null;
+let $isMainVisualSnapping = false;
+let $mainVisualSnapLockedUntil = 0;
+let $mainVisualSnapReleaseTimer = null;
+let $isEv6Snapping = false;
+let $ev6SnapLockedUntil = 0;
+let $ev6SnapReleaseTimer = null;
 
-const BEST_CAPTURE_TOLERANCE = 120;
-const BEST_CAPTURE_DURATION = 900;
-const BEST_CAPTURE_COOLDOWN = 900;
+const BEST_SNAP_TOLERANCE = 120;
+const BEST_SNAP_LOCK = 500;
+const BEST_SNAP_DURATION = 15;
 
 if (window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
@@ -258,6 +270,26 @@ function setFloating(card, rect) {
     card.style.height = `${rect.height}px`;
 }
 
+function createFloatingClone(card, rect, extraClasses = []) {
+    const $clone = card.cloneNode(true);
+
+    $clone.removeAttribute("aria-label");
+    $clone.dataset.slot = "floating";
+    $clone.classList.remove("best_car_card_left", "best_car_card_main", "best_car_card_right", "main", "is-hidden-card", "is-delayed-reveal");
+    extraClasses.forEach((className) => $clone.classList.add(className));
+
+    setFloating($clone, rect);
+    document.body.appendChild($clone);
+
+    return $clone;
+}
+
+function removeFloatingClone(card) {
+    if (card && card.parentNode) {
+        card.parentNode.removeChild(card);
+    }
+}
+
 function clearFloating(card) {
     card.classList.remove("is-floating");
     card.classList.remove("is-entering-main");
@@ -268,22 +300,54 @@ function clearFloating(card) {
     card.style.removeProperty("width");
     card.style.removeProperty("height");
     card.style.removeProperty("transition");
+    card.style.removeProperty("transform");
+    card.style.removeProperty("opacity");
 }
 
-function animateCardToRect(card, targetRect) {
+function getRectDelta(fromRect, targetRect) {
+    return {
+        x: targetRect.left - fromRect.left,
+        y: targetRect.top - fromRect.top,
+        scaleX: targetRect.width / Math.max(fromRect.width, 1),
+        scaleY: targetRect.height / Math.max(fromRect.height, 1)
+    };
+}
+
+function animateCardToRect(card, fromRect, targetRect, options = {}) {
+    const {
+        ease = CARD_MOVE_EASE
+    } = options;
+
     return new Promise((resolve) => {
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 card.style.transition = [
-                    `left ${MOVE_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1)`,
-                    `top ${MOVE_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1)`,
-                    `width ${MOVE_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1)`,
-                    `height ${MOVE_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1)`
+                    `left ${MOVE_DURATION}ms ${ease}`,
+                    `top ${MOVE_DURATION}ms ${ease}`,
+                    `width ${MOVE_DURATION}ms ${ease}`,
+                    `height ${MOVE_DURATION}ms ${ease}`
                 ].join(", ");
                 card.style.left = `${targetRect.left}px`;
                 card.style.top = `${targetRect.top}px`;
                 card.style.width = `${targetRect.width}px`;
                 card.style.height = `${targetRect.height}px`;
+            });
+        });
+
+        window.setTimeout(resolve, MOVE_DURATION);
+    });
+}
+
+function animateCardFadeOut(card) {
+    return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                card.style.transition = [
+                    `opacity ${Math.round(MOVE_DURATION * 0.68)}ms ease`,
+                    `transform ${MOVE_DURATION}ms ${CARD_EXIT_EASE}`
+                ].join(", ");
+                card.style.opacity = "0";
+                card.style.transform = "translate3d(0, -12px, 0) scale(0.94)";
             });
         });
 
@@ -311,62 +375,46 @@ async function animateTransition(direction) {
     }
 
     const $clickedCard = direction === "left" ? $leftCard : $rightCard;
-    const $oppositeCard = direction === "left" ? $rightCard : $leftCard;
     const $nextIndex = getLoopedIndex($currentIndex + (direction === "left" ? -1 : 1));
     const $nextLeftIndex = getLoopedIndex($nextIndex - 1);
     const $nextRightIndex = getLoopedIndex($nextIndex + 1);
 
-    const $mainRect = getCardRect($mainCard);
     const $mainFrameRect = getFrameRect($mainCard);
     const $clickedRect = getFrameRect($clickedCard);
-    const $oppositeRect = getFrameRect($oppositeCard);
-
     $isAnimating = true;
     $showcase.classList.add("is-transitioning");
     $backText.classList.add("is-emphasized");
 
     renderTextContent($nextIndex, $hasActivatedSpecCount);
 
-    setFloating($mainCard, $mainRect);
-    $mainCard.classList.add("is-leaving-main");
-    $mainCard.classList.remove("main", "best_car_card_main");
+    const $clickedClone = createFloatingClone($clickedCard, $clickedRect, ["is-entering-main"]);
+    const $mainClone = createFloatingClone($mainCard, $mainFrameRect, ["is-leaving-main"]);
+
+    $clickedCard.classList.add("is-hidden-card");
     $mainCard.classList.add("is-hidden-card");
 
     if (direction === "left") {
-        $oppositeCard.classList.add("is-hidden-card");
+        setCard($clickedCard, "left", $nextLeftIndex);
     } else {
-        $oppositeCard.classList.add("is-hidden-card");
+        setCard($clickedCard, "right", $nextRightIndex);
     }
+    $clickedCard.classList.remove("is-hidden-card");
 
-    await animateCardToRect($mainCard, $oppositeRect);
+    const $enterPromise = animateCardToRect($clickedClone, $clickedRect, $mainFrameRect, {
+        ease: CARD_ENTER_EASE
+    });
+    const $fadePromise = animateCardFadeOut($mainClone);
 
-    $mainCard.classList.remove("is-hidden-card");
-
-    await wait(ENTER_DELAY);
-
-    if (direction === "left") {
-        $oppositeCard.classList.add("is-delayed-reveal");
-        setCard($oppositeCard, "left", $nextLeftIndex);
-    } else {
-        $oppositeCard.classList.add("is-delayed-reveal");
-        setCard($oppositeCard, "right", $nextRightIndex);
-    }
-
-    window.setTimeout(() => {
-        $oppositeCard.classList.remove("is-delayed-reveal");
-    }, SLOT_REVEAL_DELAY);
-
-    setFloating($clickedCard, $clickedRect);
-    $clickedCard.classList.add("is-entering-main");
-    $clickedCard.classList.add("is-hidden-card");
-
-    await animateCardToRect($clickedCard, $mainFrameRect);
+    await Promise.all([$enterPromise, $fadePromise]);
 
     $currentIndex = $nextIndex;
 
     setCard($cards[0], "left", $nextLeftIndex);
     setCard($cards[1], "main", $nextIndex);
     setCard($cards[2], "right", $nextRightIndex);
+
+    removeFloatingClone($clickedClone);
+    removeFloatingClone($mainClone);
 
     $backText.classList.remove("is-emphasized");
     $showcase.classList.remove("is-transitioning");
@@ -393,42 +441,71 @@ function getBestScrollTop() {
     return Math.round(window.scrollY + $sectionRect.top);
 }
 
-function isBestInCaptureZone() {
+function isBestInSnapZone() {
     if (!$bestSection) {
         return false;
     }
 
     const $sectionRect = $bestSection.getBoundingClientRect();
-
-    return $sectionRect.top <= BEST_CAPTURE_TOLERANCE && $sectionRect.bottom > window.innerHeight * 0.55;
+    return $sectionRect.top <= window.innerHeight && $sectionRect.bottom > 0;
 }
 
-function releaseBestCapture() {
+function snapBestSection() {
     const $bestTop = getBestScrollTop();
 
-    $isBestCaptured = false;
-    $bestCaptureUntil = Date.now() + BEST_CAPTURE_COOLDOWN;
-    unlockPageScroll($bestTop + 2);
-}
-
-function captureBestSection() {
-    const $bestTop = getBestScrollTop();
-
-    if (Math.abs(window.scrollY - $bestTop) > 1) {
-        window.scrollTo({ top: $bestTop, behavior: "auto" });
+    if (typeof $bestTop !== "number") {
+        return;
     }
 
-    $isBestCaptured = true;
-    lockPageScroll($bestTop);
+    $isBestSnapping = true;
 
-    window.setTimeout(() => {
-        releaseBestCapture();
-    }, BEST_CAPTURE_DURATION);
+    if ($bestSnapReleaseTimer) {
+        window.clearTimeout($bestSnapReleaseTimer);
+        $bestSnapReleaseTimer = null;
+    }
+
+    if (window.$mainLenis && typeof window.$mainLenis.scrollTo === "function") {
+        if ($bestSnapReleaseTimer) {
+            window.clearTimeout($bestSnapReleaseTimer);
+            $bestSnapReleaseTimer = null;
+        }
+        window.$mainLenis.scrollTo(window.scrollY, {
+            immediate: true,
+        });
+        if (typeof window.$mainLenis.start === "function") {
+            window.$mainLenis.start();
+        }
+        window.$mainLenis.scrollTo($bestTop, {
+            duration: BEST_SNAP_DURATION,
+            lock: true,
+            immediate: false,
+            easing: (t) => 1 - Math.pow(1 - t, 3),
+            onComplete: () => {
+                $bestSnapLockedUntil = Date.now() + BEST_SNAP_LOCK;
+                $bestSnapReleaseTimer = window.setTimeout(() => {
+                    $isBestSnapping = false;
+                }, BEST_SNAP_LOCK);
+            }
+        });
+        return;
+    }
+
+    window.scrollTo({ top: $bestTop, behavior: "smooth" });
+    $bestSnapReleaseTimer = window.setTimeout(() => {
+        $bestSnapLockedUntil = Date.now() + BEST_SNAP_LOCK;
+        $isBestSnapping = false;
+    }, 1200);
 }
 
 function handleBestWheel(event) {
-    if (!$bestSection || $isBestCaptured || Date.now() < $bestCaptureUntil) {
-        if ($isBestCaptured) {
+    if (!$bestSection) {
+        return;
+    }
+
+    const $now = Date.now();
+
+    if ($isBestSnapping || $now < $bestSnapLockedUntil) {
+        if (isBestInSnapZone()) {
             event.preventDefault();
         }
         return;
@@ -437,14 +514,213 @@ function handleBestWheel(event) {
     const $wheelDelta = Math.abs(event.deltaY);
     const $isDown = event.deltaY > 0;
     const $bestTop = getBestScrollTop();
-    const $hasReachedBest = window.scrollY >= $bestTop - BEST_CAPTURE_TOLERANCE;
+    const $isAboveBest = window.scrollY < $bestTop;
+    const $isBelowBest = window.scrollY > $bestTop;
 
-    if ($wheelDelta < 30 || !$isDown || !$hasReachedBest || !isBestInCaptureZone()) {
+    if (Math.abs(window.scrollY - $bestTop) <= 2) {
+        return;
+    }
+
+    if ($wheelDelta < 30 || !isBestInSnapZone()) {
+        return;
+    }
+
+    if (($isDown && !$isAboveBest) || (!$isDown && !$isBelowBest)) {
         return;
     }
 
     event.preventDefault();
-    captureBestSection();
+    snapBestSection();
+}
+
+function getMainVisualScrollTop() {
+    if (!$mainVisualSection) {
+        return 0;
+    }
+
+    const $sectionRect = $mainVisualSection.getBoundingClientRect();
+    return Math.round(window.scrollY + $sectionRect.top);
+}
+
+function isMainVisualInSnapZone() {
+    if (!$mainVisualSection) {
+        return false;
+    }
+
+    const $sectionRect = $mainVisualSection.getBoundingClientRect();
+    return $sectionRect.top <= 0 && $sectionRect.bottom > 0;
+}
+
+function snapMainVisualSection() {
+    const $mainVisualTop = getMainVisualScrollTop();
+
+    if (typeof $mainVisualTop !== "number") {
+        return;
+    }
+
+    $isMainVisualSnapping = true;
+
+    if ($mainVisualSnapReleaseTimer) {
+        window.clearTimeout($mainVisualSnapReleaseTimer);
+        $mainVisualSnapReleaseTimer = null;
+    }
+
+    if (window.$mainLenis && typeof window.$mainLenis.scrollTo === "function") {
+        window.$mainLenis.scrollTo(window.scrollY, {
+            immediate: true,
+        });
+        if (typeof window.$mainLenis.start === "function") {
+            window.$mainLenis.start();
+        }
+        window.$mainLenis.scrollTo($mainVisualTop, {
+            duration: BEST_SNAP_DURATION,
+            lock: true,
+            immediate: false,
+            easing: (t) => 1 - Math.pow(1 - t, 3),
+            onComplete: () => {
+                $mainVisualSnapLockedUntil = Date.now() + BEST_SNAP_LOCK;
+                $mainVisualSnapReleaseTimer = window.setTimeout(() => {
+                    $isMainVisualSnapping = false;
+                }, BEST_SNAP_LOCK);
+            }
+        });
+        return;
+    }
+
+    window.scrollTo({ top: $mainVisualTop, behavior: "smooth" });
+    $mainVisualSnapReleaseTimer = window.setTimeout(() => {
+        $mainVisualSnapLockedUntil = Date.now() + BEST_SNAP_LOCK;
+        $isMainVisualSnapping = false;
+    }, 1200);
+}
+
+function handleMainVisualWheel(event) {
+    if (!$mainVisualSection) {
+        return;
+    }
+
+    const $now = Date.now();
+
+    if ($isMainVisualSnapping || $now < $mainVisualSnapLockedUntil) {
+        if (isMainVisualInSnapZone()) {
+            event.preventDefault();
+        }
+        return;
+    }
+
+    const $wheelDelta = Math.abs(event.deltaY);
+    const $isUp = event.deltaY < 0;
+    const $mainVisualTop = getMainVisualScrollTop();
+
+    if (Math.abs(window.scrollY - $mainVisualTop) <= 2) {
+        return;
+    }
+
+    if (window.scrollY < $mainVisualTop) {
+        return;
+    }
+
+    if ($wheelDelta < 30 || !$isUp || !isMainVisualInSnapZone()) {
+        return;
+    }
+
+    event.preventDefault();
+    snapMainVisualSection();
+}
+
+function getEv6ScrollTop() {
+    if (!$ev6Section) {
+        return 0;
+    }
+
+    const $sectionRect = $ev6Section.getBoundingClientRect();
+    return Math.round(window.scrollY + $sectionRect.top);
+}
+
+function isEv6InSnapZone() {
+    if (!$ev6Section) {
+        return false;
+    }
+
+    const $sectionRect = $ev6Section.getBoundingClientRect();
+    return $sectionRect.top <= window.innerHeight && $sectionRect.bottom > 0;
+}
+
+function snapEv6Section() {
+    const $ev6Top = getEv6ScrollTop();
+
+    if (typeof $ev6Top !== "number") {
+        return;
+    }
+
+    $isEv6Snapping = true;
+
+    if ($ev6SnapReleaseTimer) {
+        window.clearTimeout($ev6SnapReleaseTimer);
+        $ev6SnapReleaseTimer = null;
+    }
+
+    if (window.$mainLenis && typeof window.$mainLenis.scrollTo === "function") {
+        window.$mainLenis.scrollTo(window.scrollY, {
+            immediate: true,
+        });
+        if (typeof window.$mainLenis.start === "function") {
+            window.$mainLenis.start();
+        }
+        window.$mainLenis.scrollTo($ev6Top, {
+            duration: BEST_SNAP_DURATION,
+            lock: true,
+            immediate: false,
+            easing: (t) => 1 - Math.pow(1 - t, 3),
+            onComplete: () => {
+                $ev6SnapLockedUntil = Date.now() + BEST_SNAP_LOCK;
+                $ev6SnapReleaseTimer = window.setTimeout(() => {
+                    $isEv6Snapping = false;
+                }, BEST_SNAP_LOCK);
+            }
+        });
+        return;
+    }
+
+    window.scrollTo({ top: $ev6Top, behavior: "smooth" });
+    $ev6SnapReleaseTimer = window.setTimeout(() => {
+        $ev6SnapLockedUntil = Date.now() + BEST_SNAP_LOCK;
+        $isEv6Snapping = false;
+    }, 1200);
+}
+
+function handleEv6Wheel(event) {
+    if (!$ev6Section) {
+        return;
+    }
+
+    const $now = Date.now();
+
+    if ($isEv6Snapping || $now < $ev6SnapLockedUntil) {
+        if (isEv6InSnapZone()) {
+            event.preventDefault();
+        }
+        return;
+    }
+
+    const $wheelDelta = Math.abs(event.deltaY);
+    const $isDown = event.deltaY > 0;
+    const $ev6Top = getEv6ScrollTop();
+
+    if (Math.abs(window.scrollY - $ev6Top) <= 2) {
+        return;
+    }
+
+    if (window.scrollY > $ev6Top) {
+        return;
+    }
+
+    if ($wheelDelta < 30 || !$isDown || !isEv6InSnapZone()) {
+        return;
+    }
+
+    event.preventDefault();
+    snapEv6Section();
 }
 
 if ($showcase && $backText && $backTextGlass && $cards.length === 3 && $specValues.length) {
@@ -476,6 +752,8 @@ if ($showcase && $backText && $backTextGlass && $cards.length === 3 && $specValu
 }
 
 window.addEventListener("wheel", handleBestWheel, { passive: false });
+window.addEventListener("wheel", handleMainVisualWheel, { passive: false });
+window.addEventListener("wheel", handleEv6Wheel, { passive: false });
 
 /* section.ev6 */
 const clamp = (v, min = 0, max = 1) => Math.min(max, Math.max(min, v));
@@ -707,6 +985,25 @@ handleScroll();
 
 const $intro = document.querySelector('.intro');
 const $options = document.querySelectorAll('section[class*="option"]');
+const $matchSection = document.querySelector('.match');
+const $partnershipSection = document.querySelector('.partnership');
+const $matchSections = [$intro, ...$options].filter(Boolean);
+let $matchWheelLockedUntil = 0;
+let $matchLastWheelDirection = 1;
+let $isMatchSnapping = false;
+let $matchSnapReleaseTimer = null;
+let $matchLenisResumeTimer = null;
+let $currentMatchSnapIndex = 0;
+let $partnershipMatchLockedUntil = 0;
+
+const MATCH_WHEEL_DOWN_THRESHOLD = 10;
+const MATCH_WHEEL_UP_THRESHOLD = 8;
+const PARTNERSHIP_MATCH_WHEEL_UP_THRESHOLD = 1;
+const PARTNERSHIP_REVIEW_WHEEL_DOWN_THRESHOLD = 1;
+const MATCH_WHEEL_DOWN_COOLDOWN = 520;
+const MATCH_WHEEL_UP_COOLDOWN = 440;
+const MATCH_SECTION_SWITCH_VIEWPORT = 0.51;
+const MATCH_POST_SNAP_LOCK = 500;
 
 function initLenis() {
   const $lenis = new Lenis();
@@ -726,10 +1023,22 @@ function setupIntroPin() {
   ScrollTrigger.create({
     trigger: $intro,
     start: 'top top',
-    end: 'top top',
-    endTrigger: $firstOption,
+    end: '+=70vh',
     pin: true,
     pinSpacing: false,
+  });
+
+  ScrollTrigger.create({
+    trigger: $firstOption,
+    start: 'top 82%',
+    end: 'top 18%',
+    onUpdate: (self) => {
+      const progress = self.progress;
+      gsap.set($intro, {
+        scale: 1 - progress * 0.25,
+        opacity: 1 - progress,
+      });
+    },
   });
 }
 
@@ -738,14 +1047,12 @@ function setupOptionScroll() {
 
   optionsArr.forEach(($sec, index) => {
     const isLastCard = index === optionsArr.length - 1;
-    const nextSection = optionsArr[index + 1];
     ScrollTrigger.create({
       trigger: $sec,
       start: 'top top',
-      end: isLastCard ? '+=100vh' : 'top top',
-      endTrigger: isLastCard ? null : nextSection,
+      end: isLastCard ? '+=120vh' : '+=70vh',
       pin: true,
-      pinSpacing: isLastCard,
+      pinSpacing: true,
     });
   });
 
@@ -753,8 +1060,8 @@ function setupOptionScroll() {
     if (index < optionsArr.length - 1) {
       ScrollTrigger.create({
         trigger: optionsArr[index + 1],
-        start: 'top bottom',
-        end: 'top top',
+        start: 'top 82%',
+        end: 'top 18%',
         onUpdate: (self) => {
           const progress = self.progress;
           gsap.set($sec, {
@@ -767,9 +1074,502 @@ function setupOptionScroll() {
   });
 }
 
+function isMatchWheelCaptureZone() {
+  if (!$matchSection) {
+    return false;
+  }
+
+  const $rect = $matchSection.getBoundingClientRect();
+  return $rect.top < window.innerHeight && $rect.bottom > 0;
+}
+
+function getMatchSectionSnapTop(section, index) {
+  if (!section) {
+    return null;
+  }
+
+  if (window.ScrollTrigger && typeof window.ScrollTrigger.getAll === 'function') {
+    const $pinTrigger = window.ScrollTrigger.getAll().find(($trigger) => (
+      $trigger.trigger === section && $trigger.pin
+    ));
+
+    if ($pinTrigger && typeof $pinTrigger.start === 'number') {
+      return Math.round($pinTrigger.start);
+    }
+  }
+
+  if (index === 0 && $matchSection) {
+    return Math.round(window.scrollY + $matchSection.getBoundingClientRect().top);
+  }
+
+  return Math.round(window.scrollY + section.getBoundingClientRect().top);
+}
+
+function getMatchSectionTops() {
+  return $matchSections.map(($section, index) => getMatchSectionSnapTop($section, index));
+}
+
+function getCurrentMatchSectionIndex() {
+  const $tops = getMatchSectionTops();
+  const $anchor = window.scrollY + (window.innerHeight * MATCH_SECTION_SWITCH_VIEWPORT);
+  let $index = 0;
+
+  $tops.forEach(($top, index) => {
+    if ($anchor >= $top - 2) {
+      $index = index;
+    }
+  });
+
+  return $index;
+}
+
+function getSettledMatchSectionIndex() {
+  if (!$matchSections.length) {
+    return -1;
+  }
+
+  const $tops = getMatchSectionTops();
+  const $currentY = window.scrollY;
+  let $nearestIndex = 0;
+  let $nearestDistance = Math.abs($tops[0] - $currentY);
+
+  $tops.forEach(($top, index) => {
+    const $distance = Math.abs($top - $currentY);
+
+    if ($distance < $nearestDistance) {
+      $nearestDistance = $distance;
+      $nearestIndex = index;
+    }
+  });
+
+  return $nearestIndex;
+}
+
+function syncCurrentMatchSnapIndex() {
+  const $index = getSettledMatchSectionIndex();
+
+  if ($index >= 0) {
+    $currentMatchSnapIndex = $index;
+  }
+}
+
+function scrollMatchTo(index) {
+  const $tops = getMatchSectionTops();
+  const $clampedIndex = Math.max(0, Math.min(index, $tops.length - 1));
+  const $target = $tops[$clampedIndex];
+
+  if (typeof $target !== 'number') {
+    return;
+  }
+
+  $currentMatchSnapIndex = $clampedIndex;
+
+  if (window.$mainLenis && typeof window.$mainLenis.scrollTo === 'function') {
+    $isMatchSnapping = true;
+    if ($matchSnapReleaseTimer) {
+      window.clearTimeout($matchSnapReleaseTimer);
+    }
+    if ($matchLenisResumeTimer) {
+      window.clearTimeout($matchLenisResumeTimer);
+      $matchLenisResumeTimer = null;
+    }
+    window.$mainLenis.scrollTo(window.scrollY, {
+      immediate: true,
+    });
+    if (typeof window.$mainLenis.start === 'function') {
+      window.$mainLenis.start();
+    }
+    window.$mainLenis.scrollTo($target, {
+      duration: 15,
+      lock: true,
+      immediate: false,
+      easing: (t) => 1 - Math.pow(1 - t, 3),
+      onComplete: () => {
+        $matchWheelLockedUntil = Date.now() + MATCH_POST_SNAP_LOCK;
+        if (typeof window.$mainLenis.stop === 'function' && typeof window.$mainLenis.start === 'function') {
+          window.$mainLenis.stop();
+          $matchLenisResumeTimer = window.setTimeout(() => {
+            window.$mainLenis.start();
+            $matchLenisResumeTimer = null;
+          }, MATCH_POST_SNAP_LOCK);
+        }
+        $matchSnapReleaseTimer = window.setTimeout(() => {
+          $isMatchSnapping = false;
+        }, MATCH_POST_SNAP_LOCK);
+      },
+    });
+    return;
+  }
+
+  $isMatchSnapping = true;
+  if ($matchSnapReleaseTimer) {
+    window.clearTimeout($matchSnapReleaseTimer);
+  }
+  window.scrollTo({ top: $target, behavior: 'smooth' });
+  window.setTimeout(() => {
+    $matchWheelLockedUntil = Date.now() + MATCH_POST_SNAP_LOCK;
+    $matchSnapReleaseTimer = window.setTimeout(() => {
+      $isMatchSnapping = false;
+    }, MATCH_POST_SNAP_LOCK);
+  }, 1650);
+}
+
+function scrollMatchToTarget(target) {
+  if (typeof target !== 'number') {
+    return;
+  }
+
+  if (window.$mainLenis && typeof window.$mainLenis.scrollTo === 'function') {
+    $isMatchSnapping = true;
+    if ($matchSnapReleaseTimer) {
+      window.clearTimeout($matchSnapReleaseTimer);
+    }
+    if ($matchLenisResumeTimer) {
+      window.clearTimeout($matchLenisResumeTimer);
+      $matchLenisResumeTimer = null;
+    }
+    window.$mainLenis.scrollTo(window.scrollY, {
+      immediate: true,
+    });
+    if (typeof window.$mainLenis.start === 'function') {
+      window.$mainLenis.start();
+    }
+    window.$mainLenis.scrollTo(target, {
+      duration: 15,
+      lock: true,
+      immediate: false,
+      easing: (t) => 1 - Math.pow(1 - t, 3),
+      onComplete: () => {
+        $matchWheelLockedUntil = Date.now() + MATCH_POST_SNAP_LOCK;
+        if (typeof window.$mainLenis.stop === 'function' && typeof window.$mainLenis.start === 'function') {
+          window.$mainLenis.stop();
+          $matchLenisResumeTimer = window.setTimeout(() => {
+            window.$mainLenis.start();
+            $matchLenisResumeTimer = null;
+          }, MATCH_POST_SNAP_LOCK);
+        }
+        $matchSnapReleaseTimer = window.setTimeout(() => {
+          $isMatchSnapping = false;
+        }, MATCH_POST_SNAP_LOCK);
+      },
+    });
+    return;
+  }
+
+  $isMatchSnapping = true;
+  if ($matchSnapReleaseTimer) {
+    window.clearTimeout($matchSnapReleaseTimer);
+  }
+  window.scrollTo({ top: target, behavior: 'smooth' });
+  window.setTimeout(() => {
+    $matchWheelLockedUntil = Date.now() + MATCH_POST_SNAP_LOCK;
+    $matchSnapReleaseTimer = window.setTimeout(() => {
+      $isMatchSnapping = false;
+    }, MATCH_POST_SNAP_LOCK);
+  }, 1650);
+}
+
+function getEv6BottomScrollTop() {
+  if (!$ev6Section) {
+    return null;
+  }
+
+  const $ev6Top = Math.round($ev6Section.offsetTop);
+  return Math.max(0, Math.round($ev6Top + $ev6Section.offsetHeight - window.innerHeight));
+}
+
+function getMatchBottomScrollTop() {
+  if (!$matchSection) {
+    return null;
+  }
+
+  return Math.max(0, Math.round($matchSection.offsetTop + $matchSection.scrollHeight - window.innerHeight));
+}
+
+function getLastMatchBottomScrollTop() {
+  const $lastMatchOption = $options[$options.length - 1];
+
+  if (!$lastMatchOption) {
+    return getMatchBottomScrollTop();
+  }
+
+  if (window.ScrollTrigger && typeof window.ScrollTrigger.getAll === 'function') {
+    const $pinTrigger = window.ScrollTrigger.getAll().find(($trigger) => (
+      $trigger.trigger === $lastMatchOption && $trigger.pin
+    ));
+
+    if ($pinTrigger && typeof $pinTrigger.end === 'number') {
+      return Math.round($pinTrigger.end);
+    }
+  }
+
+  return getMatchBottomScrollTop();
+}
+
+function isIntroInSnapZone() {
+  if (!$intro) {
+    return false;
+  }
+
+  const $introRect = $intro.getBoundingClientRect();
+  return $introRect.top <= 1 && $introRect.bottom > window.innerHeight * 0.25;
+}
+
+function handleIntroToEv6Wheel(event) {
+  if (!$intro || !$ev6Section) {
+    return;
+  }
+
+  const $now = Date.now();
+
+  if ($isMatchSnapping || $now < $matchWheelLockedUntil) {
+    if (isIntroInSnapZone()) {
+      event.preventDefault();
+    }
+    return;
+  }
+
+  const $isUp = event.deltaY < 0;
+  const $wheelDelta = Math.abs(event.deltaY);
+
+  if (!$isUp || $wheelDelta < MATCH_WHEEL_UP_THRESHOLD || !isIntroInSnapZone()) {
+    return;
+  }
+
+  const $ev6BottomTop = getEv6BottomScrollTop();
+
+  if (typeof $ev6BottomTop !== 'number') {
+    return;
+  }
+
+  event.preventDefault();
+  $matchWheelLockedUntil = $now + MATCH_WHEEL_UP_COOLDOWN;
+  scrollMatchToTarget($ev6BottomTop);
+}
+
+function isPartnershipInSnapZone() {
+  if (!$partnershipSection) {
+    return false;
+  }
+
+  const $partnershipRect = $partnershipSection.getBoundingClientRect();
+  return $partnershipRect.top < window.innerHeight && $partnershipRect.bottom > 0;
+}
+
+function isPartnershipDownSnapZone() {
+  if (!$partnershipSection) {
+    return false;
+  }
+
+  const $partnershipRect = $partnershipSection.getBoundingClientRect();
+  return $partnershipRect.top < window.innerHeight && $partnershipRect.bottom > 0;
+}
+
+function isReviewBlockingPartnershipMatch() {
+  if (!$reviewSection) {
+    return false;
+  }
+
+  const $reviewRect = $reviewSection.getBoundingClientRect();
+  return $reviewRect.top <= 0 && $reviewRect.bottom > 0;
+}
+
+function handlePartnershipToMatchWheel(event) {
+  if (!$partnershipSection || !$matchSections.length) {
+    return;
+  }
+
+  if ($isCaptured) {
+    return;
+  }
+
+  const $now = Date.now();
+
+  if ($now < $partnershipMatchLockedUntil) {
+    return;
+  }
+
+  if ($isMatchSnapping || $now < $matchWheelLockedUntil) {
+    if (isPartnershipInSnapZone()) {
+      event.preventDefault();
+    }
+    return;
+  }
+
+  const $isUp = event.deltaY < 0;
+  const $wheelDelta = Math.abs(event.deltaY);
+
+  if (!$isUp || $wheelDelta < PARTNERSHIP_MATCH_WHEEL_UP_THRESHOLD || !isPartnershipInSnapZone()) {
+    return;
+  }
+
+  event.preventDefault();
+  $currentMatchSnapIndex = $matchSections.length - 1;
+  $matchWheelLockedUntil = $now + MATCH_POST_SNAP_LOCK;
+  scrollMatchTo($currentMatchSnapIndex);
+}
+
+function isReviewInSnapEntryZone() {
+  if (!$reviewSection) {
+    return false;
+  }
+
+  const $reviewRect = $reviewSection.getBoundingClientRect();
+  return $reviewRect.top <= window.innerHeight && $reviewRect.bottom > 0;
+}
+
+function handlePartnershipToReviewWheel(event) {
+  if (!$partnershipSection || !$reviewSection) {
+    return;
+  }
+
+  const $now = Date.now();
+
+  if ($isCaptured || $now < $captureLockedUntil) {
+    return;
+  }
+
+  const $isDown = event.deltaY > 0;
+  const $wheelDelta = Math.abs(event.deltaY);
+  const $partnershipRect = $partnershipSection.getBoundingClientRect();
+
+  if (!$isDown || $wheelDelta < PARTNERSHIP_REVIEW_WHEEL_DOWN_THRESHOLD) {
+    return;
+  }
+
+  if (!isPartnershipDownSnapZone()) {
+    return;
+  }
+
+  event.preventDefault();
+  $captureLockedUntil = $now + 900;
+  const $reviewTop = Math.round(window.scrollY + $reviewSection.getBoundingClientRect().top);
+
+  if (window.$mainLenis && typeof window.$mainLenis.scrollTo === 'function') {
+    window.$mainLenis.scrollTo(window.scrollY, {
+      immediate: true,
+    });
+    if (typeof window.$mainLenis.start === 'function') {
+      window.$mainLenis.start();
+    }
+    window.$mainLenis.scrollTo($reviewTop, {
+      duration: 15,
+      lock: true,
+      immediate: false,
+      easing: (t) => 1 - Math.pow(1 - t, 3),
+      onComplete: () => {
+        captureReview();
+      }
+    });
+    return;
+  }
+
+  window.scrollTo({ top: $reviewTop, behavior: 'smooth' });
+  window.setTimeout(() => {
+    captureReview();
+  }, 1200);
+}
+
+function handleMatchWheel(event) {
+  if (!isMatchWheelCaptureZone() || !$matchSections.length) {
+    return;
+  }
+
+  const $now = Date.now();
+
+  if ($isMatchSnapping) {
+    event.preventDefault();
+    return;
+  }
+
+  if ($now < $matchWheelLockedUntil) {
+    event.preventDefault();
+    return;
+  }
+
+  const $wheelDelta = Math.abs(event.deltaY);
+  const $isDown = event.deltaY > 0;
+  $matchLastWheelDirection = $isDown ? 1 : -1;
+  const $threshold = $isDown ? MATCH_WHEEL_DOWN_THRESHOLD : MATCH_WHEEL_UP_THRESHOLD;
+  const $cooldown = $isDown ? MATCH_WHEEL_DOWN_COOLDOWN : MATCH_WHEEL_UP_COOLDOWN;
+
+  if ($wheelDelta < $threshold) {
+    return;
+  }
+
+  syncCurrentMatchSnapIndex();
+  const $direction = event.deltaY > 0 ? 1 : -1;
+  const $currentIndex = $currentMatchSnapIndex;
+  const $lastIndex = $matchSections.length - 1;
+  const $currentTop = getMatchSectionTops()[$currentIndex];
+
+  if (typeof $currentTop === 'number' && Math.abs(window.scrollY - $currentTop) > 8) {
+    event.preventDefault();
+    $matchWheelLockedUntil = $now + $cooldown;
+    scrollMatchTo($currentIndex);
+    return;
+  }
+
+  const $targetIndex = Math.max(0, Math.min($currentIndex + $direction, $matchSections.length - 1));
+
+  if ($targetIndex === $currentIndex) {
+    if ($currentIndex === 0 && $direction < 0) {
+      const $ev6BottomTop = getEv6BottomScrollTop();
+
+      if (typeof $ev6BottomTop === 'number') {
+        event.preventDefault();
+        $matchWheelLockedUntil = $now + $cooldown;
+        scrollMatchToTarget($ev6BottomTop);
+      }
+      return;
+    }
+
+    if ($currentIndex === $lastIndex && $direction > 0) {
+      if ($partnershipSection) {
+        event.preventDefault();
+        $matchWheelLockedUntil = $now + $cooldown;
+        scrollMatchToTarget(Math.round(window.scrollY + $partnershipSection.getBoundingClientRect().top));
+      }
+      return;
+    }
+    return;
+  }
+
+  event.preventDefault();
+  $matchWheelLockedUntil = $now + $cooldown;
+  scrollMatchTo($targetIndex);
+}
+
 initLenis();
 setupIntroPin();
 setupOptionScroll();
+syncCurrentMatchSnapIndex();
+window.addEventListener('wheel', handleIntroToEv6Wheel, { passive: false });
+window.addEventListener('wheel', handlePartnershipToMatchWheel, { passive: false });
+window.addEventListener('wheel', handlePartnershipToReviewWheel, { passive: false });
+window.addEventListener('wheel', handleMatchWheel, { passive: false });
+
+window.addEventListener('resize', () => {
+  $matchWheelLockedUntil = 0;
+  $partnershipMatchLockedUntil = 0;
+  $isMatchSnapping = false;
+
+  if ($matchSnapReleaseTimer) {
+    window.clearTimeout($matchSnapReleaseTimer);
+    $matchSnapReleaseTimer = null;
+  }
+
+  if ($matchLenisResumeTimer) {
+    window.clearTimeout($matchLenisResumeTimer);
+    $matchLenisResumeTimer = null;
+  }
+
+  if (window.ScrollTrigger && typeof window.ScrollTrigger.refresh === 'function') {
+    window.ScrollTrigger.refresh();
+  }
+
+  syncCurrentMatchSnapIndex();
+}, { passive: true });
 
 function setupMatchCursor() {
   const $cards = document.querySelectorAll('.match section[class*="option"] .bottom>ul.cars>li');
@@ -906,6 +1706,8 @@ window.addEventListener("resize", setupPartnerBelt);
 
 /* section.review */
 const $reviewSection = document.querySelector('.review');
+const $mapSection = document.querySelector('.map');
+const $footerSection = document.querySelector('footer');
 const $reviewCon = document.querySelector('.review_con');
 const $lists = document.querySelectorAll('.review_con ul');
 const $items = document.querySelectorAll('.review_con li');
@@ -972,6 +1774,114 @@ function isReviewInCaptureZone() {
     return $sectionRect.top <= $captureTolerance && $sectionRect.bottom > window.innerHeight / 2;
 }
 
+function isMapInSnapZone() {
+    if (!$mapSection) return false;
+
+    const $mapRect = $mapSection.getBoundingClientRect();
+    return $mapRect.top <= window.innerHeight && $mapRect.bottom > 0;
+}
+
+function isFooterInSnapZone() {
+    if (!$footerSection) return false;
+
+    const $footerRect = $footerSection.getBoundingClientRect();
+    return $footerRect.top <= 0 && $footerRect.bottom > window.innerHeight * 0.25;
+}
+
+function isFooterToMapSnapZone() {
+    if (!$footerSection) return false;
+
+    const $footerRect = $footerSection.getBoundingClientRect();
+    return $footerRect.top <= window.innerHeight * 0.6 && $footerRect.bottom > 0;
+}
+
+function handleMapToReviewWheel(e) {
+    if (!$mapSection || !$reviewSection || $isCaptured || Date.now() < $captureLockedUntil) return;
+    if (isFooterToMapSnapZone()) return;
+
+    const $isUp = e.deltaY < 0;
+    const $wheelDelta = Math.abs(e.deltaY);
+
+    if (!$isUp || $wheelDelta < $wheelNoiseThreshold || !isMapInSnapZone()) {
+        return;
+    }
+
+    const $reviewTop = getReviewScrollTop();
+
+    e.preventDefault();
+    $captureLockedUntil = Date.now() + 900;
+
+    if (window.$mainLenis && typeof window.$mainLenis.scrollTo === 'function') {
+        window.$mainLenis.scrollTo(window.scrollY, {
+            immediate: true,
+        });
+        if (typeof window.$mainLenis.start === 'function') {
+            window.$mainLenis.start();
+        }
+        window.$mainLenis.scrollTo($reviewTop, {
+            duration: 15,
+            lock: true,
+            immediate: false,
+            easing: (t) => 1 - Math.pow(1 - t, 3),
+            onComplete: () => {
+                $currentScroll = $maxScroll;
+                $isCaptured = true;
+                $releasePending = true;
+                $modalShown = false;
+                lockPageScroll($reviewTop);
+                syncReviewLists();
+                checkActive();
+            }
+        });
+        return;
+    }
+
+    window.scrollTo({ top: $reviewTop, behavior: 'smooth' });
+    window.setTimeout(() => {
+        $currentScroll = $maxScroll;
+        $isCaptured = true;
+        $releasePending = true;
+        $modalShown = false;
+        lockPageScroll($reviewTop);
+        syncReviewLists();
+        checkActive();
+    }, 1200);
+}
+
+function handleFooterToMapWheel(e) {
+    if (!$footerSection || !$mapSection || $isCaptured || Date.now() < $captureLockedUntil) return;
+
+    const $isUp = e.deltaY < 0;
+    const $wheelDelta = Math.abs(e.deltaY);
+
+    if (!$isUp || $wheelDelta < $wheelNoiseThreshold || !isFooterToMapSnapZone()) {
+        return;
+    }
+
+    const $mapTop = Math.round(window.scrollY + $mapSection.getBoundingClientRect().top);
+
+    e.preventDefault();
+    $captureLockedUntil = Date.now() + 900;
+
+    if (window.$mainLenis && typeof window.$mainLenis.scrollTo === 'function') {
+        window.$mainLenis.scrollTo(window.scrollY, {
+            immediate: true,
+        });
+        if (typeof window.$mainLenis.start === 'function') {
+            window.$mainLenis.start();
+        }
+        window.$mainLenis.scrollTo($mapTop, {
+            duration: 15,
+            lock: true,
+            immediate: false,
+            easing: (t) => 1 - Math.pow(1 - t, 3),
+        });
+        return;
+    }
+
+    window.scrollTo({ top: $mapTop, behavior: 'smooth' });
+}
+
 function stopLenis() {
     if (window.$mainLenis && typeof window.$mainLenis.stop === 'function') {
         window.$mainLenis.stop();
@@ -1007,8 +1917,12 @@ function captureReview() {
         window.scrollTo({ top: $reviewScrollTop, behavior: 'auto' });
     }
 
+    $currentScroll = 0;
+    $isWaiting = false;
+    $modalShown = false;
     $isCaptured = true;
     $releasePending = false;
+    hideModal();
     lockPageScroll($reviewScrollTop);
     syncReviewLists();
     checkActive();
@@ -1016,13 +1930,64 @@ function captureReview() {
 
 function releaseReview(isDown) {
     const $targetScrollY = isDown
-        ? $reviewScrollTop + $captureTolerance + 2
-        : Math.max(0, $reviewScrollTop - $captureTolerance - 2);
+        ? ($mapSection
+            ? Math.round(window.scrollY + $mapSection.getBoundingClientRect().top)
+            : $reviewScrollTop + $captureTolerance + 2)
+        : ($partnershipSection
+            ? Math.round(window.scrollY + $partnershipSection.getBoundingClientRect().top)
+            : Math.max(0, $reviewScrollTop - $captureTolerance - 2));
 
     $captureLockedUntil = Date.now() + 900;
+    if (!isDown) {
+        $partnershipMatchLockedUntil = Date.now() + 120;
+    }
     $isCaptured = false;
     $isWaiting = false;
     $releasePending = false;
+
+    if (isDown) {
+        document.documentElement.classList.remove('review_locked');
+        document.body.classList.remove('review_locked');
+
+        if (window.$mainLenis && typeof window.$mainLenis.scrollTo === 'function') {
+            requestAnimationFrame(() => {
+                startLenis();
+                window.$mainLenis.scrollTo(window.scrollY, {
+                    immediate: true,
+                });
+                window.$mainLenis.scrollTo($targetScrollY, {
+                    duration: 15,
+                    lock: true,
+                    immediate: false,
+                    easing: (t) => 1 - Math.pow(1 - t, 3),
+                });
+            });
+            return;
+        }
+
+        unlockPageScroll($targetScrollY);
+        return;
+    }
+
+    document.documentElement.classList.remove('review_locked');
+    document.body.classList.remove('review_locked');
+
+    if (window.$mainLenis && typeof window.$mainLenis.scrollTo === 'function') {
+        requestAnimationFrame(() => {
+            startLenis();
+            window.$mainLenis.scrollTo(window.scrollY, {
+                immediate: true,
+            });
+            window.$mainLenis.scrollTo($targetScrollY, {
+                duration: 15,
+                lock: true,
+                immediate: false,
+                easing: (t) => 1 - Math.pow(1 - t, 3),
+            });
+        });
+        return;
+    }
+
     unlockPageScroll($targetScrollY);
 }
 
@@ -1121,6 +2086,8 @@ function handleReviewWheel(e) {
 }
 
 window.addEventListener('wheel', handleReviewWheel, { passive: false });
+window.addEventListener('wheel', handleMapToReviewWheel, { passive: false });
+window.addEventListener('wheel', handleFooterToMapWheel, { passive: false });
 window.addEventListener('resize', () => {
     updateReviewMetrics();
     syncReviewLists();
