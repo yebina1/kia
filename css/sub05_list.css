@@ -47,7 +47,7 @@ header .inner h1 a {
 
 .list_layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 1fr);
   gap: 32px;
   align-items: start;
 }
@@ -83,7 +83,7 @@ header .inner h1 a {
 
 .compare_tray {
   border: 1px solid rgba(251, 246, 239, 0.16);
-  border-radius: 28px;
+  border-radius: 24px;
   padding: 28px 24px;
   background: rgba(12, 17, 21, 0.45);
 }
@@ -162,9 +162,10 @@ header .inner h1 a {
   display: block;
   width: 100%;
   height: 220px;
-  border-radius: 14px;
+  border-radius: 24px;
   overflow: hidden;
   background: var(--kia-white2);
+  position: relative;
 }
 
 .vehicle_card .thumb img {
@@ -174,8 +175,70 @@ header .inner h1 a {
   transition: transform 0.35s ease;
 }
 
+.vehicle_card .thumb::before {
+  content: "Add To Compare";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 56px;
+  border-radius: 24px;
+  background: rgba(18, 18, 18, 0.5);
+  color: var(--kia-white1);
+  font-family: "Outfit", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+  pointer-events: none;
+}
+
+.vehicle_card .thumb::after {
+  content: "+";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 50px;
+  height: 50px;
+  border-radius: 555px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Outfit", sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  color: #fff;
+  background: rgba(251, 246, 239, 0.45);
+  transform: translate(-50%, calc(-50% + 34px)) scale(0.88);
+  opacity: 0;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+  pointer-events: none;
+}
+
 .vehicle_card:hover .thumb img {
   transform: scale(1.04);
+}
+
+.vehicle_card:hover .thumb::before,
+.vehicle_card:hover .thumb::after,
+.vehicle_card .thumb:focus-visible::before,
+.vehicle_card .thumb:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, calc(-50% + 34px)) scale(1);
+}
+
+.vehicle_card:hover .thumb::before,
+.vehicle_card .thumb:focus-visible::before {
+  transform: translateY(0);
 }
 
 .vehicle_card .meta {
@@ -214,7 +277,7 @@ header .inner h1 a {
   justify-content: center;
   min-height: 44px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 18px;
   font-family: "Outfit", sans-serif;
   font-weight: 600;
   text-transform: uppercase;
@@ -226,7 +289,11 @@ header .inner h1 a {
 }
 
 .vehicle_card .actions .btn_detail {
-  background: linear-gradient(90deg, rgba(251, 246, 239, 0.1), rgba(50, 176, 180, 0.2));
+  background: linear-gradient(
+    90deg,
+    rgba(251, 246, 239, 0.1),
+    rgba(50, 176, 180, 0.2)
+  );
   color: var(--kia-white1);
 }
 
@@ -316,4 +383,3 @@ footer .f_sns li a i {
   color: var(--kia-white2);
   font-size: 18px;
 }
-
