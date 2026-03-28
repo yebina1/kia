@@ -447,7 +447,7 @@ body.modal-open {
     flex-direction: column;
     justify-content: flex-start;
     gap: 30px;
-    padding: 250px 120px 60px 144px;
+    padding: 274px 120px 60px 144px;
     background: #0c0c0c;
     opacity: 1;
     visibility: visible;
@@ -578,7 +578,7 @@ body.modal-open {
 .con > button {
     position: absolute;
     left: 144px;
-    bottom: 170px;
+    bottom: 148px;
     z-index: 5;
     width: 170px;
     height: 55px;
@@ -650,6 +650,7 @@ body.modal-open {
     opacity: 0;
     pointer-events: none;
     animation: vidHeroFloat 5.8s ease-in-out infinite;
+    transition: opacity 0.85s ease;
 }
 
 .vid_hero_image.is-visible {

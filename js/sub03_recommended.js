@@ -102,7 +102,7 @@ const MODAL_TRANSITION_MS = 420;
 const MOBILE_SWIPE_THRESHOLD = 40;
 const DESKTOP_SCROLL_LOCK_MS = 1100;
 const MOBILE_DRAG_MAX_OFFSET = 72;
-const DESKTOP_HERO_ROTATE_MS = 1900;
+const DESKTOP_HERO_ROTATE_MS = 3200;
 
 function isMobileViewport() {
     return window.innerWidth <= MOBILE_LAYOUT_BREAKPOINT;
@@ -142,7 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
         desktopHeroTimer: 0,
         desktopHeroGroup: "",
         desktopHeroImageIndex: 0,
-        desktopHeroVisibleLayer: 0
+        desktopHeroVisibleLayer: 0,
+        lastRenderedDesktopIndex: 0
     };
 
     normalizeFeatureBullets(sections);
@@ -444,6 +445,21 @@ function normalizeFeatureBullets(sections) {
         section.querySelectorAll(".txt_box b span").forEach((span) => {
             span.textContent = "\u2023";
         });
+
+        section.querySelectorAll("ul li").forEach((item) => {
+            const image = item.querySelector("img");
+            const textBox = item.querySelector(".txt_box");
+            const imageSrc = image?.getAttribute("src")?.trim();
+
+            if (!imageSrc || !textBox) return;
+
+            textBox.style.setProperty("--feature-card-image", `url("${imageSrc}")`);
+            textBox.style.backgroundImage =
+                `linear-gradient(180deg, rgba(48, 53, 56, 0.42) 0%, rgba(48, 53, 56, 0.82) 100%), url("${imageSrc}")`;
+            textBox.style.backgroundPosition = "center center";
+            textBox.style.backgroundSize = "cover";
+            textBox.style.backgroundRepeat = "no-repeat";
+        });
     });
 }
 
@@ -601,6 +617,7 @@ function renderSections(activeIndex, sections, title, recco, experimentalMode, d
 
     updateDesktopTabVisual(getMobileGroup(activeSection.id));
     updateDesktopHeroVisual(getMobileGroup(activeSection.id), desktopVisual, state);
+    state.lastRenderedDesktopIndex = activeIndex;
 
     if (recco) {
         updateExperimentalState(activeIndex, sections, title, recco, experimentalMode);
