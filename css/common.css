@@ -8,6 +8,7 @@
   --kia-black: #121212;
   --font-roboto: "Roboto", sans-serif;
   --font-outfit:"Outfit", sans-serif;
+  --font-Cormorant-Garamond:"Cormorant Garamond", serif;
 }
 
 body {
@@ -504,7 +505,16 @@ footer .f_left .l_bottom .f_fam strong{
     font-weight: 500;
     line-height: 1.3;
     text-transform: capitalize;
-    border-radius: 555px ;
+    border-radius: 555px;
+    cursor: pointer;
+}
+
+footer .f_left .l_bottom .f_fam strong i{
+    transition: transform 0.3s ease;
+}
+
+footer .f_left .l_bottom .f_fam.on strong i{
+    transform: rotate(180deg);
 }
 
 footer .f_left .l_bottom .f_fam ul.fam{
@@ -513,19 +523,32 @@ footer .f_left .l_bottom .f_fam ul.fam{
     bottom: 54px;
     width: 100%;
     border-radius: 16px;
-    padding: 8px 16px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
 }
 
 footer .f_left .l_bottom .f_fam.on ul.fam{
-    display: flex;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 footer .f_left .l_bottom .f_fam ul.fam li a{
     line-height: 1.3;
+    display: block;
+    padding: 6px 16px;
+}
+
+footer .f_left .l_bottom .f_fam ul.fam li:hover{
+  background: rgba(241,241,245,0.1);
+}
+
+footer .f_left .l_bottom .f_fam ul.fam li:hover a{
+  font-weight: 600;
 }
 
 footer .f_right{

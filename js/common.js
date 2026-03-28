@@ -40,7 +40,7 @@ $gnbItems.forEach((item) => {
   const $header = document.querySelector('header');
   let $lastScrollY = window.scrollY;
 
-  window.addEventListener('scroll', () => {
+window.addEventListener('scroll', () => {
     const $currentScrollY = window.scrollY;
 
     if ($currentScrollY > 100 && $currentScrollY > $lastScrollY) {
@@ -51,3 +51,13 @@ $gnbItems.forEach((item) => {
 
     $lastScrollY = $currentScrollY;
 });
+
+const $familySite = document.querySelector('footer .f_fam');
+const $familyToggle = document.querySelector('footer .f_fam strong');
+
+if ($familySite && $familyToggle) {
+  $familyToggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    $familySite.classList.toggle('on');
+  });
+}
