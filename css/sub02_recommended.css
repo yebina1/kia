@@ -39,6 +39,7 @@ section.way .inner p {
 .recco {
     width: 100%;
     position: relative;
+    background: #121212;
 }
 
 .recco .inner {
@@ -309,21 +310,23 @@ body.modal-open {
 .recco .tit::before {
     content: "";
     position: absolute;
-    left: 0;
-    top: -48px;
-    width: 100%;
-    height: 360px;
+    left: min(50vw, 960px);
+    top: 0;
+    width: calc(100% - min(50vw, 960px));
+    height: 280px;
     background:
-        linear-gradient(180deg, rgba(8, 11, 14, 1) 0%, rgba(12, 17, 21, 0.98) 28%, rgba(12, 17, 21, 0.86) 52%, rgba(12, 17, 21, 0.56) 72%, rgba(12, 17, 21, 0.18) 88%, rgba(12, 17, 21, 0) 100%);
+        linear-gradient(180deg, #121212 0%, rgba(18, 18, 18, 0.96) 22%, rgba(18, 18, 18, 0.72) 52%, rgba(18, 18, 18, 0.32) 76%, rgba(18, 18, 18, 0) 100%);
 }
 
 .recco .tit h2 {
     position: absolute;
-    top: 72px;
+    top: 92px;
     left: 50%;
     transform: translateX(-50%);
-    color: rgba(251, 246, 239, 0.8);
-    letter-spacing: -0.02em;
+    color: rgba(251, 246, 239, 0.6);
+    font-size: 64px;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
     white-space: nowrap;
     text-shadow: 0 12px 30px rgba(0, 0, 0, 0.52);
 }
@@ -336,9 +339,7 @@ body.modal-open {
     position: sticky;
     top: 0;
     display: grid;
-    /* 변경 전: grid-template-columns: 960px minmax(0, 1fr); */
-    /* 변경 후: overlay는 최소 600px, 최대 960px, 뷰포트의 63% 기준으로 유동 */
-    grid-template-columns: clamp(600px, 63vw, 960px) minmax(0, 1fr);
+    grid-template-columns: min(50vw, 960px) minmax(0, 1fr);
     height: 100vh;
     overflow: hidden;
     align-items: stretch;
@@ -347,12 +348,12 @@ body.modal-open {
 .recco .contents::before {
     content: "";
     position: absolute;
-    left: 0;
+    left: min(50vw, 960px);
     top: 0;
-    width: 100%;
-    height: 240px;
+    width: calc(100% - min(50vw, 960px));
+    height: 280px;
     background:
-        linear-gradient(180deg, rgba(12, 17, 21, 1) 0%, rgba(12, 17, 21, 0.98) 36%, rgba(12, 17, 21, 0.92) 68%, rgba(12, 17, 21, 0) 100%);
+        linear-gradient(180deg, #121212 0%, rgba(18, 18, 18, 0.96) 24%, rgba(18, 18, 18, 0.74) 56%, rgba(18, 18, 18, 0.32) 78%, rgba(18, 18, 18, 0) 100%);
     pointer-events: none;
     z-index: 4;
 }
@@ -366,8 +367,20 @@ body.modal-open {
     display: grid;
     /* tab(96px) + con 영역: tab도 vw 기반으로 최소값 확보 */
     grid-template-columns: clamp(72px, 6vw, 96px) minmax(0, 1fr);
-    background: #0c0c0c;
+    background: #121212;
     overflow: hidden;
+}
+
+.overlay::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -1px;
+    width: 44px;
+    height: 100%;
+    pointer-events: none;
+    z-index: 6;
+    background: linear-gradient(90deg, #121212 0%, rgba(18, 18, 18, 0.96) 34%, rgba(18, 18, 18, 0.64) 72%, rgba(18, 18, 18, 0) 100%);
 }
 
 /* =============================================
@@ -473,6 +486,7 @@ body.modal-open {
     position: relative;
     overflow: hidden;
     z-index: 1;
+    height: 100%;
 }
 
 .car_all {
@@ -489,18 +503,20 @@ body.modal-open {
 
 .car_all section {
     position: absolute;
-    bottom: 120px;
+    inset: 0;
     left: 0;
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(28px, 3vw, 40px);
     /* 변경 전: padding: 330px 120px 60px 144px; */
     /* 변경 후: 좌우 padding을 vw 기반으로 유동화 */
-    padding: 330px clamp(40px, 8vw, 120px) 60px clamp(40px, 9vw, 144px);
-    background: #0c0c0c;
+    padding:
+        clamp(120px, 14vh, 168px) clamp(36px, 4vw, 88px) clamp(96px, 10vh, 120px) clamp(56px, 6vw, 144px);
+    background: #121212;
     opacity: 1;
     visibility: visible;
     pointer-events: none;
@@ -529,7 +545,7 @@ body.modal-open {
     max-width: 600px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 11px;
 }
 
 .car_all .top .title p {
@@ -541,40 +557,47 @@ body.modal-open {
 .car_all .top .title h2 {
     margin-top: 4px;
     font-size: 48px;
-    line-height: 0.94;
+    line-height: 1;
     color: #fbf6ef;
 }
 
-.car_all .top > p {
+.car_all .top .title h2 span {
+    display: inline-block;
+    transform: translateY(-10px);
+}
+
+.car_all .top>p {
     max-width: 540px;
     color: #ddd8d1;
     font-size: 18px;
     line-height: 1.3;
+    font-weight: 500;
 }
 
 .car_all ul {
     width: 100%;
     max-width: 600px;
+    margin-top: 0;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 30px;
 }
 
 /* 변경 전: grid-template-columns: 133px minmax(0, 1fr); */
 /* 변경 후: 이미지 컬럼도 뷰포트에 따라 줄어들게 */
 .car_all ul li {
     display: grid;
-    grid-template-columns: clamp(80px, 9vw, 133px) minmax(0, 1fr);
+    grid-template-columns: 153px minmax(0, 1fr);
     gap: 16px;
-    align-items: center;
+    align-items: stretch;
     flex-shrink: 0;
 }
 
 /* 변경 전: width:130px; height:130px; */
 /* 변경 후: clamp로 최솟값 확보 */
 .car_all ul li img {
-    width: clamp(80px, 9vw, 130px);
-    height: clamp(80px, 9vw, 130px);
+    width: 153px;
+    height: 153px;
     display: block;
     object-fit: cover;
     border-radius: 50%;
@@ -583,13 +606,17 @@ body.modal-open {
 }
 
 .car_all .txt_box {
-    min-height: 108px;
-    padding: 16px 20px;
+    min-height: 153px;
+    height: 100%;
+    padding: 24px 32px;
     border-radius: 24.71px;
     background: rgba(251, 246, 239, 0.14);
     border: 1px solid rgba(251, 246, 239, 0.12);
     backdrop-filter: blur(6px);
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     /* 핵심 추가: 텍스트 깨짐 방지 — 최소 너비 확보 */
     min-width: 0;
     word-break: keep-all;
@@ -603,7 +630,7 @@ body.modal-open {
     /* 변경 전: font-size: 20px; */
     /* 변경 후: 좁은 화면에서 줄어들게 */
     font-size: clamp(15px, 1.4vw, 20px);
-    line-height: 1.25;
+    line-height: 1.3;
     font-weight: 500;
 }
 
@@ -616,17 +643,16 @@ body.modal-open {
     color: #ddd8d1;
     /* 변경 전: font-size: 15px; */
     font-size: clamp(13px, 1.1vw, 15px);
-    line-height: 1.4;
+    line-height: 1.3;
 }
 
 /* =============================================
    BUILD IT BUTTON
 ============================================= */
-.con > button {
+.con>button {
     position: absolute;
-    /* 변경 전: left: 144px; */
-    left: clamp(40px, 9vw, 144px);
-    bottom: 32px;
+    left: clamp(56px, 6vw, 144px);
+    bottom: clamp(40px, 6vh, 64px);
     z-index: 5;
     width: 170px;
     height: 55px;
@@ -645,7 +671,7 @@ body.modal-open {
     cursor: pointer;
 }
 
-.recco.recco--experimental .con > button {
+.recco.recco--experimental .con>button {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(12, 17, 21, 0.05) 100%);
     transition:
@@ -654,7 +680,7 @@ body.modal-open {
         box-shadow 0.35s ease;
 }
 
-.recco.recco--experimental .con > button:hover {
+.recco.recco--experimental .con>button:hover {
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.18);
     box-shadow: 0 14px 26px rgba(0, 0, 0, 0.28);
@@ -702,12 +728,16 @@ body.modal-open {
 .vid::before {
     content: "";
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: -8px;
     z-index: 3;
     pointer-events: none;
     background:
-        linear-gradient(90deg, rgba(12, 12, 12, 0.82) 0%, rgba(12, 12, 12, 0.34) 10%, rgba(12, 12, 12, 0) 22%),
-        linear-gradient(180deg, rgba(12, 17, 21, 0.18) 0%, rgba(12, 17, 21, 0) 18%, rgba(12, 17, 21, 0) 82%, rgba(12, 17, 21, 0.24) 100%);
+        linear-gradient(90deg, rgba(18, 18, 18, 0.94) 0%, rgba(18, 18, 18, 0.58) 14%, rgba(18, 18, 18, 0) 30%),
+        linear-gradient(180deg, #121212 0%, rgba(18, 18, 18, 0.82) 18%, rgba(18, 18, 18, 0.28) 42%, rgba(18, 18, 18, 0) 68%),
+        linear-gradient(0deg, rgba(18, 18, 18, 0.26) 0%, rgba(18, 18, 18, 0) 20%);
 }
 
 .vid.has-hero-image::after {
@@ -716,17 +746,19 @@ body.modal-open {
 
 .vid_hero_image {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transform: none;
+    top: -12px;
+    left: -14px;
+    width: calc(100% + 28px);
+    height: calc(100% + 24px);
+    transform: translate3d(0, 0, 0) scale(1.035);
     transform-origin: center center;
     object-fit: cover;
     object-position: center center;
     filter: drop-shadow(0 28px 48px rgba(0, 0, 0, 0.34));
     opacity: 0;
     pointer-events: none;
-    animation: vidHeroFloat 5.8s ease-in-out infinite;
+    will-change: transform, opacity;
+    animation: vidHeroFloat 6.2s ease-in-out infinite;
     transition: opacity 0.85s ease;
 }
 
@@ -774,12 +806,13 @@ body.modal-open {
 }
 
 @keyframes vidHeroFloat {
+
     0%,
     100% {
-        transform: scale(1) translateY(0);
+        transform: translate3d(0, 0, 0) scale(1.035);
     }
 
     50% {
-        transform: scale(1.018) translateY(-10px);
+        transform: translate3d(0, 0, 0) scale(1.055);
     }
 }

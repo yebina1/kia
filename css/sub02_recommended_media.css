@@ -136,7 +136,7 @@
     /* overlay는 고정 비율 유지, vid는 남은 공간 채움 */
     .overlay {
         flex: 0 0 auto;
-        width: clamp(560px, 60vw, 960px);
+        width: min(50vw, 960px);
         min-width: 0;
     }
 
@@ -178,7 +178,7 @@
 
     .overlay {
         flex: 0 0 auto;
-        width: clamp(760px, 65vw, 1100px);
+        width: min(50vw, 960px);
     }
 
     .vid {
